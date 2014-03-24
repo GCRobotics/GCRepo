@@ -7,17 +7,15 @@
 
 #include "Ultrasonic.h"
 #include <Arduino.h>
+#include "Motors.h"
 
-#define TRIGGER_PIN 3
-#define ECHO_PIN 2
-#define ADDR0_PIN 6			// Least significant of the address select
-#define ADDR1_PIN 5
-#define ADDR2_PIN 4			// Most significant of the address select bit
+Motors Robot;
 
 // default constructor
 Ultrasonic::Ultrasonic()
 {
 	// Initializing everything with zero
+	
 	PreviousTime =0;
 	InterruptEchoTime = 0;
 	Select = 0;
@@ -26,6 +24,8 @@ Ultrasonic::Ultrasonic()
 		EchoDistance[i] = 0;
 	}
 	FullSet = 0;
+	StateMachine = 0;
+	CheckPointFlag = 0;
 } //Ultrasonic
 
 // default destructor
@@ -151,4 +151,177 @@ void Ultrasonic::pinSelect (int Address)
 	digitalWrite(ADDR1_PIN, (Address & 0x02));
 	// Set the most sig. digit
 	digitalWrite(ADDR2_PIN, (Address & 0x04));
+}
+
+void Ultrasonic::checkPoint(char Side, char Face, int XTarget, int YTarget, int Near)
+{
+	CheckPointFlag = 0;
+	// If we have finally collect the first set of the ultrasonic data
+	if (FullSet == 1)
+	{
+		int XCurrent1 = EchoDistance[Side ? 0:4];
+		int XCurrent2 = EchoDistance[Side ? 1:3];
+		int YCurrent  = EchoDistance[Face ? 5:2];
+		
+		// Making sure that we have the correct orientation
+		//if (StateMachine == 0)
+		//{
+			//// Side that we are using should always be smaller than the side that we don't want
+			//// If it is bigger then just rotate clockwise until you are at the correct orientation
+			//if (EchoDistance[Side ? 0:4] > EchoDistance[Side ? 4:0])
+				//Robot.cw(FastSpeed);
+			//else if (EchoDistance[Face ? 5:2] > EchoDistance[Side ? 2:5])
+				//Robot.cw(FastSpeed);
+			//else
+				//StateMachine++;
+		//}
+		
+		// Making sure both sides are parallel
+		if (StateMachine == 0)
+		{
+			// If the difference of the 2 right sensors are greater than the tolerance
+			if ( ((XCurrent1 - XCurrent2) > SENSOR_TOLERANCE) || ((XCurrent1 - XCurrent2) < -SENSOR_TOLERANCE) )
+			{
+				// Determining if robot needs to rotate CW or CCW
+				if (XCurrent1 > XCurrent2)
+				{
+					Robot.cw(SlowSpeed);
+				}
+				else
+				{
+					Robot.ccw(SlowSpeed);
+				}
+			}
+			// Stop the robot and move to the next state if the robot parallel
+			else {
+				//Robot.stop();
+				StateMachine++;
+			}
+		}
+		
+		// Making sure the robot reaches the x-axis target
+		if (StateMachine == 1)
+		{
+			// If the Front right sensor is greater than the X-Target
+			// We are only using one of the sensor to check for distance
+			if ((XCurrent1 < (XTarget - SENSOR_TOLERANCE)) || (XCurrent1 > (XTarget + SENSOR_TOLERANCE)))
+			{
+				
+			/*************************
+			*
+			* This is not needed on the real robot
+			* We need it right now because strafing is not really "strafing"
+			*
+			************************/
+			if (YCurrent >= 20)
+			{
+				// Determining if the robot needs to strafe left or right
+				if (XCurrent1 < (XTarget - SENSOR_TOLERANCE))
+				{
+					Robot.left(SlowSpeed);
+				}
+				else
+				{
+					Robot.right(SlowSpeed);
+				}
+				
+			}
+			else {
+				StateMachine = 2;}
+				//StateMachine = 0;
+			}
+			
+			// The robot is at the x-axis target
+			else
+			{
+				// Determine if the robot is at the x-axis target && is parallel to the wall
+				if ((XCurrent1 >= (XTarget - SENSOR_TOLERANCE)) && (XCurrent1 <= (XTarget + SENSOR_TOLERANCE))
+				&&
+				(XCurrent2 >= (XTarget - SENSOR_TOLERANCE)) && (XCurrent2 <= (XTarget + SENSOR_TOLERANCE)))
+				{
+					//stop the robot and go to the next state
+					//Robot.stop();
+					StateMachine++;
+				}
+				// else the robot needs to go back to state 0 and try to get it self parallel to the wall
+				else
+				{
+					StateMachine--;
+				}
+			}
+		}
+		
+		// Making sure the robot reaches the y-axis
+		if (StateMachine == 2)
+		{
+			// Making sure the back sensor is outside the target value
+			if ((YCurrent < (YTarget - SENSOR_TOLERANCE)) || (YCurrent > (YTarget + SENSOR_TOLERANCE)))
+			{
+				// Deciding if the robot needs to move forward or backward
+				if (YCurrent < (YTarget - SENSOR_TOLERANCE))
+				{
+					if (Near == 1)
+						Robot.forward(SlowSpeed);
+					else 
+						Robot.backward(SlowSpeed);
+				}
+				else
+				{
+					if (Near == 1)
+						Robot.backward(SlowSpeed);
+					else 
+						Robot.forward(SlowSpeed);
+				}
+				StateMachine-- ;
+			}
+			// The robot is at the y-axis target
+			else
+			{
+				// Determining if the robot is (parallel to the wall) && (at the x-axis target) && (at the y-axis target)
+				if (
+				(XCurrent1 >= (XTarget - SENSOR_TOLERANCE)) &&
+				(XCurrent1 <= (XTarget + SENSOR_TOLERANCE)) &&
+				(XCurrent2 >= (XTarget - SENSOR_TOLERANCE)) &&
+				(XCurrent2 <= (XTarget + SENSOR_TOLERANCE)) &&
+				(YCurrent >= (XTarget - SENSOR_TOLERANCE)) &&
+				(YCurrent <= (XTarget + SENSOR_TOLERANCE))   )
+				{
+					//stop the robot and go to the next state
+					Robot.stop();
+					
+					/*************************
+					*
+					* Need to change back to next state
+					*
+					************************/
+					StateMachine = 0;
+					CheckPointFlag = 1;
+				}
+				// else the robot needs to go back to state 0 and try to get it self parallel to the wall
+				else
+				{
+					StateMachine = 0;
+				}
+			}
+		}
+	}
+}
+
+void Ultrasonic::forward()
+{
+	Robot.forward(FastSpeed);
+}
+
+void Ultrasonic::turn90Cw()
+{
+	Robot.cw(FastSpeed);
+	Robot.cw(FastSpeed);
+	delay(1320);
+	Robot.stop();
+	Robot.stop();
+}
+
+void Ultrasonic::stop()
+{
+	Robot.stop();
 }
