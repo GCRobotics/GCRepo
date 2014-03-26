@@ -107,10 +107,10 @@ __CONFIG(BOR4V_BOR40V & WRT_OFF);
 // Function Prototypes
 void Initialise();              // contains all initializing functions
 void interrupt isr();           // general interrupt vector
-void updateData(int c);         // takes in most recent count measurements and
-                                // adds them to current total
+void updateOdometry();
+void updateEncoder();
+
 void setDirection(int dir);     // Sets the direction bit (PORTB bit 3)
-void intSecondComplement (int *value);  // Make an integer negative or vice versa
 
 
 //Global Variables
@@ -124,9 +124,12 @@ int TMR0OverflowCounter = 0;                // This will keep track of the numbe
                                             // This is how often our PID loop will run
 
   int OdometryCounts      = 0;              // TMR1 encoder counts --> passed to CPU
+  int temp = 0, PreviousOdometryCounts = 0;
 
   int PID                 = 0;              // This will contain the result of PID algorithm
   int EncoderCounts       = 0;              // number of counts since last PID loop
+  int PreviousEncoderCounts = 0;
+
   int Error               = 0;              // How far we from target speed
   int AccumulatedError    = 0;              // Sum of errors
   int DeltaError          = 0;              // Difference in current error and previous error
@@ -185,8 +188,7 @@ int main()
         if (F.DIR == 1)
         {
             // Update counts before updating direction
-            encUpdate(&EncoderCounts);                  //This will put the value of TMR1 into counts and then clear TMR0
-            updateData(EncoderCounts);			// This will add counts to OdometryCounts (which is the total distanced traveled so far.)
+            updateOdometry();
 
             // Update direction
             DirectionRead = PORTBbits.RB5;
@@ -199,16 +201,7 @@ int main()
         if (F.T0 == 1)
         {
             // Update to most recent encoder counts
-            encUpdate(&EncoderCounts);
-            updateData(EncoderCounts);
-/****** I'm keeping this in here just incase I change my mind and want to implement ***
-*        it later on. PID is perfectly function right now
-//            if ((DirectionRead != MOTOR_DIRECTION)&& (Target != 0))
-//            {
-//                intSecondComplement(&EncoderCounts);
-//                PORTBbits.RB3 = DirectionRead;
-//            }
-/**************************************************************************************/
+            updateEncoder();
 
 /*************** Calculate stuff for PID **********************************************/
             Error               = Target - EncoderCounts;
@@ -285,6 +278,9 @@ void interrupt isr()
     if (SSPIF == 1)             // interrupt is I2C related
     {
         F.I2C = 1;              // set i2c flag bit
+        //Update OdometryCounts
+        updateOdometry();
+        //Go to the i2cisrhandler
         i2cIsrHandler();	// interrupt flag was cleared in this function
     } else if (T0IF == 1)       // overflow of timer 0
     {                           // TMR0 overflows every 10 ms
@@ -315,16 +311,35 @@ void interrupt isr()
 }       // end interrupt function
 
 
-// Takes in variables holding the most recent time read and count read and adds
-//  (or subtracsts, depending on the direction) those to the current totals
-void updateData(int c)
+void updateEncoder()
 {
+    // if TMR1 hasn't overflown yet
+    if (PreviousEncoderCounts <= TMR1)
+         EncoderCounts = TMR1 - PreviousEncoderCounts;
+    // if TMR1 has overflown
+    else EncoderCounts = ( 65535 - PreviousEncoderCounts)+ 1 + TMR1;
+    // Update PreviousOdomertryCounts
+    PreviousEncoderCounts = TMR1;
+}
+
+void updateOdometry()
+{
+    int Temp;
+    // if TMR1 hasn't overflown yet
+    if (PreviousOdometryCounts <= TMR1)
+         Temp = TMR1 - PreviousOdometryCounts;
+    // if TMR1 has overflown
+    else Temp = ( 65535 - PreviousOdometryCounts)+ 1 + TMR1;
+    // Update PreviousOdomertryCounts
+    PreviousOdometryCounts = TMR1;
+
+    //Update Odometry
     if (DirectionRead == FORWARD)
     {
-        OdometryCounts += c;
+        EncoderCounts += Temp;
     } else
     {
-        OdometryCounts -= c;
+        EncoderCounts -= Temp;
     }
 }
 
@@ -338,7 +353,4 @@ void setDirection(int dir)
     else
         PORTBbits.RB3 = FORWARD;        // default to motor forward
 }
-void intSecondComplement (int *value)
-{
-    *value = (~(*value))+1;
-}
+
