@@ -52,6 +52,8 @@ void setup(){
   Wire.begin(); // join i2c bus
   Serial.begin(9600);
   pinMode(13, OUTPUT);
+  Timer1.initialize(100000); // 100 ms between interrupts
+  Timer1.attachInterrupt(Read);
   Serial.print ("Press W to go forward.               "); Serial.println ("Press S to go backward");
   Serial.print ("Press A to strafe left.              "); Serial.println ("Press D to strafe right");
 }
@@ -185,6 +187,15 @@ int ReadOne(char address) {                               // pass in the motor y
   encoder[1] = encoder[1] << 8; // Combine the two bytes into one value, lower byte is sent first, upper second.
   
   return encoder[1] + encoder[0];
+}
+
+void Read() {
+  sei(); // enable interrupts inside of this interrrupt, allowing wire function calls to still function instead of blocking
+ 
+  Serial.print("ODOM1:    "); Serial.print(ReadOne (0x2)); Serial.print("              ODOM2:    "); Serial.println(ReadOne (0x4));
+  Serial.print("ODOM3:    "); Serial.print(ReadOne (0x6)); Serial.print("              ODOM4:    "); Serial.println(ReadOne (0x8));
+  
+
 }
 
 

@@ -1,43 +1,27 @@
-/*******************************************************************************
- *  Project:            GCRobtics Team
+/* GCRobotics
  *
- *  Original Creator:   Alan Hale
- *                          2013
- *  Modified by:        Quang Nguyen
- *                          2013
+ * Created on February 20, 2013
+ *      By Alen Hale
+ * Modify on October 13, 2013
+ *      By Quang Nguyen
  *
- *  Function:           This code is code responsible for handling all the
- *                      PIC16F887s. These PICs will be used for motor control
- *                      and odometry feedback. Communication between the PICs
- *                      and the Arduino will be accomplish by using the
- *                      I2C communication protocol. The user will need to change
- *                      the name of the address to correspond to the correct PIC's
- *                      address
+ * Created for PIC16F887
  *
- *  Pins used:
- *                      RB3 : Tells the motor which direction to operate
- *                      RB5 : Tells which direction the motor is currently running.
- *                              This is accomplished thorough the phase of the 2 encoders
- *                              and a D-flip flop
- *                      RC1 : This pin contains the PWM output that controls the motor's
- *                              speed
- *                      RC3 : Use for I2C
- *                      RC4 : Use for I2C
+ * GCRobotics Primary PIC main function
+ * Controls the aspects of the PICs that are in charge of
+ *  controlling the motors and sending feedback to the CPU,
+ *  namely the PWM, I2C, and Encoder functions.
  *
- *  Peripherals used:
- *                      TIMER0:
- *                          This is used to determined how often the PID calculation
- *                          is performed. This timer is set up overflow every 10 ms
+ * I/0s:
+ *      RB3 : Tells the motor which direction to operate
+ *      RB5 : Tells which direction the motor is currently running.
+ *          This is accomplished thorough the phase of the 2 encoders
+ *          and a D-flip flop
+ *      RC1 : This pin contains the PWM output that controls the motor's
+ *          speed
+ *      RC3 : Use for I2C
+ *      RC4 : Use for I2C
  *
- *                      TIMER1:
- *                          This is used to keep track of the encoder count of the motor
- *
- *                      CCP2:
- *                          This is used to generate the PWM signal needed to control the
- *                          motor. The output of the PWM signal will be on RC1
- *
- *                      PORTB Change:
- *                          This is used to detect direction change in the motor.
  *
  * Accomplished so far:
  *      - PID has been tuned and tested to work correctly and reliably
@@ -54,78 +38,42 @@
  *          to pass different data if needed.
  *      - Maybe improve on PID somehow. Like I said before, it is working
  *          pretty  well so far.
- *      - Structure and comment the code more. The code was in a pretty terrible
- *          condition when I first got it. Hopefully I put enough comments on here
- *          that you guys can have a rough idea of what is happening
  *
- ********************************************************************************/
+ */
 
-
-
-/*******************************************************************************
- *
- *                      Library includes
- *
- *******************************************************************************/
-
-#include <pic16f887.h>                                  // 16F887 header file, for all
-                                                        //  processor-specific declarations
-#include <htc.h>                                        // htc.h necessary for PIC16F917 Configuration
-                                                        //  Bit Settings
+#include <pic16f887.h>          // 16F887 header file, for all
+                                //  processor-specific declarations
+#include <htc.h>                // htc.h necessary for PIC16F917 Configuration
+                                //  Bit Settings
 //#include <stdlib.h>
 
         #ifndef _XTAL_FREQ
 	#define _XTAL_FREQ 	20000000
 	#endif
 
-#include "pwmlib887.h"                                  // allows for use of PWM module
-                                                        //  (use double quotes for user-defined)
-#include "enclib887.h"                                  // allows for use of Encoder module
-#include "i2cSlave887.h"                                // allows for use of I2C module
-
-/*******************************************************************************
- *
- *                       Configuration Bits
- *
- ******************************************************************************/
+#include "pwmlib887.h"             // allows for use of PWM module
+                                   //  (use double quotes for user-defined)
+#include "enclib887.h"             // allows for use of Encoder module
+#include "i2cSlave887.h"            // allows for use of I2C module
 
 // Configuration bit settings
 // Use 20MHz external oscillator --> FOSC_HS
 // Turn on external oscillator --> FOSC_HS
-// NOTE:  MCLRE must be set to ON because of this family of PIC (887.
-//  Must be used in conjunction with the MCLR pin via weak pullup.
-//  See section 14.2.2, page 211, of the 887 datasheet.
+  // NOTE:  MCLRE must be set to ON because of this family of PIC (887.
+  //  Must be used in conjunction with the MCLR pin via weak pullup.
+  //  See section 14.2.2, page 211, of the 887 datasheet.
 
 __CONFIG(FOSC_HS & WDTE_OFF & PWRTE_OFF & MCLRE_ON &
         CP_OFF & CPD_OFF & BOREN_OFF & IESO_OFF & FCMEN_OFF & LVP_OFF);
 __CONFIG(BOR4V_BOR40V & WRT_OFF);
 
 
-
-/*******************************************************************************
- *
- *                      Constant Declarations
- *
- *******************************************************************************/
-
-//  Pre-processor definitions that specify an individual PIC.  That is, all
+// Pre-processor definitions that specify an individual PIC.  That is, all
 //  the main code can be exactly the same, from PIC to PIC for the robot,
 //  depending on the motor position (front left motor, for example), only
-//  these definitions will need to change.
-//
-//  Direction:
-//      -   Uncomment the block of code that corresponds to the side of the
-//      motor.
-//      -   Comment the block of code that corresponds to the side of the
-//      motor that is not being used
-//      -   Uncomment the proper "I2C_ADDRESS" that corresponds to the
-//      proper PIC.
-//      -   Make sure the address for unused PIC is commented.
-//
-//      This configuration allows for the same code to be used even though
-//      motor direction and PIC's addresses are not the same
+//  these definitions will need to change
 
-/************** Right side PICs **************
+/************** Right side PICs **************/
 /////////////// PIC's address for I2C //////////////////
  //#define I2C_ADDRESS 0x02        // FRONT RIGHT motor address
  #define I2C_ADDRESS 0x04        // BACK RIGHT motor addres
@@ -134,9 +82,9 @@ __CONFIG(BOR4V_BOR40V & WRT_OFF);
  #define MOTOR_DIRECTION i2cDirection
  #define FORWARD     1
  #define BACKWARD !FORWARD
-**********************************************/
+//**********************************************/
 
-/************** Left side PICs **************/
+/************** Left side PICs **************
           /////////////// PIC's address for I2C //////////////////
 //#define I2C_ADDRESS 0x06        // BACK LEFT motor address
 #define I2C_ADDRESS 0x08        // FRONT LEFT motor address
@@ -145,27 +93,27 @@ __CONFIG(BOR4V_BOR40V & WRT_OFF);
  #define MOTOR_DIRECTION i2cDirection
  #define FORWARD     0
  #define BACKWARD !FORWARD
-/**********************************************/
-
+**********************************************/
 
 #define PWM_OFFSET  80          // Motor won't spin until a certain amount of voltage
                                 // is applied to it.
 #define FLAG_ADDRESS 0xAA       // Address for user defined flag register
                                 //  According sto datasheet, 0xAA is free
-
 // Coefficients for PID
 #define KP 3.5                  // PID P coefficient
 #define KI 1.7                  // PID I coefficient
 #define KD 1.7                  // PID D coefficient
 
-/*******************************************************************************
- *
- *                      Global Variable Declarations
- *
- *******************************************************************************/
-//          Yes, I realized that I shouldn't use global variable...What can I
-//          say...I'm lazy...
+// Function Prototypes
+void Initialise();              // contains all initializing functions
+void interrupt isr();           // general interrupt vector
+void updateOdometry();
+void updateEncoder();
 
+void setDirection(int dir);     // Sets the direction bit (PORTB bit 3)
+
+
+//Global Variables
 int Target              = 0;                // target speed passed down from CPU
 int DirectionRead       = FORWARD;          // value read from encoder flip-flop used
                                             // to keep track of current direction
@@ -176,17 +124,18 @@ int TMR0OverflowCounter = 0;                // This will keep track of the numbe
                                             // This is how often our PID loop will run
 
   int OdometryCounts      = 0;              // TMR1 encoder counts --> passed to CPU
+  int temp = 0, PreviousOdometryCounts = 0;
 
   int PID                 = 0;              // This will contain the result of PID algorithm
   int EncoderCounts       = 0;              // number of counts since last PID loop
+  int PreviousEncoderCounts = 0;
+
   int Error               = 0;              // How far we from target speed
   int AccumulatedError    = 0;              // Sum of errors
   int DeltaError          = 0;              // Difference in current error and previous error
   int PreviousError       = 0;              // Well....self explained. haha
   int CurrentPwm          = 0;              // current pulse width pushed to PWM
                                                 // can have a min of 0 and max of 255
-  unsigned int LastPidCount        = 0;
-  unsigned int LastOdomCount       = 0;
 
 // Register that holds flags that are set in software upon determination of
 //  the cause of an interrupt.  These flags are continuously checked in the
@@ -208,27 +157,11 @@ union {
     };
 }F @ FLAG_ADDRESS;
 
-/*******************************************************************************
- *
- *                      Function Prototype
- *
- *******************************************************************************/
-void Initialise();              // contains all initializing functions
-void interrupt isr();           // general interrupt vector
-void updateData(int c);         // takes in most recent count measurements and
-                                // adds them to current total
-void setDirection(int dir);     // Sets the direction bit (PORTB bit 3)
-
-int updatePid();
-void updateOdometry();
-
-/*******************************************************************************
- *
- *                      Main Function
- *
- *******************************************************************************/
-int main() {
-   // BEGIN
+//-----------------------------------------------------------------------------
+// MAIN STARTS HERE -----------------------------------------------------------
+int main()
+{
+    // BEGIN
     Initialise();                       // Function to do initial setup
     while(1)                            // Infinite loop
     {
@@ -243,7 +176,7 @@ int main() {
             Target = i2cTarget;             // Receive velocity from CPU
             setDirection(MOTOR_DIRECTION);  // Set direction of the motor to the direction
                                                 // sent from CPU
-//            OdometryCounts = 0;             // Reset the variables for PID and odometry
+            OdometryCounts = 0;             // Reset the variables for PID and odometry
             if (i2cTarget == 0)             // This to ensure a sharp stop
             {
                 AccumulatedError = 0;
@@ -254,11 +187,8 @@ int main() {
         }
         if (F.DIR == 1)
         {
-//            // Update counts before updating direction
-//            encUpdate(&EncoderCounts);                  //This will put the value of TMR1 into counts and then clear TMR0
-//            updateData(EncoderCounts);			// This will add counts to OdometryCounts (which is the total distanced traveled so far.)
-
-             updateOdometry();
+            // Update counts before updating direction
+            updateOdometry();
 
             // Update direction
             DirectionRead = PORTBbits.RB5;
@@ -270,20 +200,8 @@ int main() {
         //  PID Loop occurs at regular time intervals
         if (F.T0 == 1)
         {
-//            // Update to most recent encoder counts
-//            encUpdate(&EncoderCounts);
-//            updateData(EncoderCounts);
-
-            EncoderCounts = updatePid();
-
-/****** I'm keeping this in here just incase I change my mind and want to implement ***
-*        it later on. PID is perfectly function right now
-//            if ((DirectionRead != MOTOR_DIRECTION)&& (Target != 0))
-//            {
-//                intSecondComplement(&EncoderCounts);
-//                PORTBbits.RB3 = DirectionRead;
-//            }
-/**************************************************************************************/
+            // Update to most recent encoder counts
+            updateEncoder();
 
 /*************** Calculate stuff for PID **********************************************/
             Error               = Target - EncoderCounts;
@@ -316,14 +234,11 @@ int main() {
     } // end while(1)
 
     return 1;                   // standard ending for an "int main"
-}
+}   // END MAIN ---------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
-/*******************************************************************************
- *
- *                      Initialize Function
- *
- *******************************************************************************/
 
+// Any PIC initialization that is necessary goes here
 void Initialise()
 {
     FLAG    = 0;            // Clear everything first
@@ -356,24 +271,16 @@ void Initialise()
     PORTCbits.RC1 = 0;
 }
 
-/*******************************************************************************
- *
- *                      Interrupt Service Routine
- *
- *******************************************************************************/
 
+// Primary Interrupt vector
 void interrupt isr()
 {
     if (SSPIF == 1)             // interrupt is I2C related
     {
-        // Update counts before updating direction
-        encUpdate(&EncoderCounts);                  //This will put the value of TMR1 into counts and then clear TMR0
-        updateData(EncoderCounts);			// This will add counts to OdometryCounts (which is the total distanced traveled so far.)
-
         F.I2C = 1;              // set i2c flag bit
-        // Update to the newest odometry incase the master request the odometry data
+        //Update OdometryCounts
         updateOdometry();
-
+        //Go to the i2cisrhandler
         i2cIsrHandler();	// interrupt flag was cleared in this function
     } else if (T0IF == 1)       // overflow of timer 0
     {                           // TMR0 overflows every 10 ms
@@ -402,55 +309,37 @@ void interrupt isr()
 ;                               // Not sure if we need to do anything right now
     }
 }       // end interrupt function
-/*******************************************************************************
- *
- *                      Other Functions
- *
- *******************************************************************************/
-// Takes in variables holding the most recent time read and count read and adds
-//  (or subtracsts, depending on the direction) those to the current totals
-void updateData(int c)
-{
-    if (DirectionRead == FORWARD)
-    {
-        OdometryCounts += c;
-    } else
-    {
-        OdometryCounts -= c;
-    }
-}
 
-int updatePid()
+
+void updateEncoder()
 {
-    unsigned int CurrentPidCount = TMR1;
-    int Result = 0;
-    // TMR1 overflowed so we have to compensate for it
-    if ( CurrentPidCount < LastPidCount )
-    {
-        CurrentPidCount += (65535 - LastPidCount);
-        LastPidCount = 0;
-    }
-    Result = CurrentPidCount - LastPidCount;
-    return Result;
+    // if TMR1 hasn't overflown yet
+    if (PreviousEncoderCounts <= TMR1)
+         EncoderCounts = TMR1 - PreviousEncoderCounts;
+    // if TMR1 has overflown
+    else EncoderCounts = ( 65535 - PreviousEncoderCounts)+ 1 + TMR1;
+    // Update PreviousOdomertryCounts
+    PreviousEncoderCounts = TMR1;
 }
 
 void updateOdometry()
 {
-    unsigned int CurrentOdomCount = TMR1;
+    int Temp;
+    // if TMR1 hasn't overflown yet
+    if (PreviousOdometryCounts <= TMR1)
+         Temp = TMR1 - PreviousOdometryCounts;
+    // if TMR1 has overflown
+    else Temp = ( 65535 - PreviousOdometryCounts)+ 1 + TMR1;
+    // Update PreviousOdomertryCounts
+    PreviousOdometryCounts = TMR1;
 
-    // TMR1 overflowed so we have to compensate for it
-    if ( CurrentOdomCount < LastOdomCount )
-    {
-        CurrentOdomCount += (65535 - LastOdomCount);
-        LastOdomCount = 0;
-    }
-    // Now updata the total odometry count
+    //Update Odometry
     if (DirectionRead == FORWARD)
     {
-        OdometryCounts += (CurrentOdomCount - LastOdomCount);
+        OdometryCounts += Temp;
     } else
     {
-        OdometryCounts -= (CurrentOdomCount - LastOdomCount);
+        OdometryCounts -= Temp;
     }
 }
 
@@ -464,3 +353,4 @@ void setDirection(int dir)
     else
         PORTBbits.RB3 = FORWARD;        // default to motor forward
 }
+
