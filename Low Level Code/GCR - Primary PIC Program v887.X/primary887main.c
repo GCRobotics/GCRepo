@@ -73,7 +73,7 @@ __CONFIG(BOR4V_BOR40V & WRT_OFF);
 //  depending on the motor position (front left motor, for example), only
 //  these definitions will need to change
 
-/************** Right side PICs **************
+/************** Right side PICs **************/
 /////////////// PIC's address for I2C //////////////////
  #define I2C_ADDRESS 0x02        // FRONT RIGHT motor address
  //#define I2C_ADDRESS 0x04        // BACK RIGHT motor addres
@@ -84,16 +84,16 @@ __CONFIG(BOR4V_BOR40V & WRT_OFF);
  #define BACKWARD !FORWARD
 //**********************************************/
 
-//************** Left side PICs **************
+/************** Left side PICs **************
           /////////////// PIC's address for I2C //////////////////
-#define I2C_ADDRESS 0x06        // BACK LEFT motor address
-//#define I2C_ADDRESS 0x08        // FRONT LEFT motor address
+//#define I2C_ADDRESS 0x06        // BACK LEFT motor address
+#define I2C_ADDRESS 0x08        // FRONT LEFT motor address
 
           /////////////// PIC specific depending on wheel orientation //////////
  #define MOTOR_DIRECTION i2cDirection
  #define FORWARD     0
  #define BACKWARD !FORWARD
-//**********************************************/
+**********************************************/
 
 #define PWM_OFFSET  80          // Motor won't spin until a certain amount of voltage
                                 // is applied to it.
@@ -336,10 +336,10 @@ void updateOdometry()
     //Update Odometry
     if (DirectionRead == FORWARD)
     {
-        EncoderCounts += Temp;
+        OdometryCounts += Temp;
     } else
     {
-        EncoderCounts -= Temp;
+        OdometryCounts -= Temp;
     }
 }
 
