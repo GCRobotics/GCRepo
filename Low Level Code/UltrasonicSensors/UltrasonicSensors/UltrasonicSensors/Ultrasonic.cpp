@@ -272,7 +272,7 @@ void Ultrasonic::checkPoint(char Side, char Face, int XTarget, int YTarget, int 
 					else 
 						Robot.forward(SlowSpeed);
 				}
-				StateMachine-- ;
+				//StateMachine-- ;
 			}
 			// The robot is at the y-axis target
 			else

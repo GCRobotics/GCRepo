@@ -18,7 +18,7 @@
 #define SENSOR_RIGHT_1		0
 #define SENSOR_RIGHT_2		1
 #define SENSOR_BACK_1		2
-#define SENSOR_TOLERANCE	2
+#define SENSOR_TOLERANCE	1
 #define MAX_DISTANCE		200
 
 #define LEFT	0

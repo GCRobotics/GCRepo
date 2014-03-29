@@ -57,6 +57,8 @@ void loop()
 	// {Ultra.EchoDistance[0]},{Ultra.EchoDistance[1]}, {Ultra.EchoDistance[2]},{Ultra.EchoDistance[3]},{Ultra.EchoDistance[4]},{Ultra.EchoDistance[5]}
 	Ultra.spinOnce();
 	
+	Ultra.checkPoint(RIGHT,BACK,30,30,NEAR);
+	/*
 	switch (StateMachine)
 	{
 		case 0:
@@ -86,7 +88,8 @@ void loop()
 			StateMachine++;
 			break;
 	}
-	delay(1);
+	*/
+	delay(10);
 }
 
 /*********************************************************
