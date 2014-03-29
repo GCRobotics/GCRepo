@@ -20,6 +20,8 @@
         <remap from="image" to="/camera/depth/image_raw"/>
 </node>
 
+<!-- Map Server -->
+<node pkg="map_server" type="map_server" args="/home/gcr/GCRepo/GCRobotics/ideal_arena.yaml" respawn="true" name="map_server" />
 
 <!-- Odometry - Generate position data from encoders -->
 <node name="odometryNode" pkg="GCRobotics" type="odometryNode" />
@@ -30,7 +32,7 @@
 <!-- GMapping - generate occ grid from laserscan -->
 <include file="$(find GCRobotics)/launch/gmapping.launch" />
 
-<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+<node pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen">
     <rosparam file="$(find GCRobotics)/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find GCRobotics)/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find GCRobotics)/local_costmap_params.yaml" command="load" />

@@ -2,7 +2,7 @@
 /*
 
 		NAME 	 - Odometry Node 
-		DESIGN - Josh Galicic - David Mine - Scott Caldwell - influenced by ROS's odometry tutorial
+		DESIGN - Josh Galicic - David Mine - Scott Caldwell - WhiteGlint - influenced by ROS's odometry tutorial
 		PRIORITY - Required - Required for deriving position from encoders
 	
 		--------OVERVIEW--------
@@ -16,10 +16,10 @@ to the bot frame.
 The efficiency scalars are very rough approximations that were found experimentally by driving the
 bot and checking encoder counts. They can always be made more precise.
 
-Incorporate gyroscope data.
+Incorporate gyroscope data. hopfully one day
 
 Simply averaging the encoder counts is subject to erroneous encoder data (i.e. outliers).
-This could be improved to detect and disregard outliers.
+This could be improved to detect and disregard outliers. 
 
 A lot of the conversion factors should be setup as ros parameters so that recompiling isnt necessary for
 minor changes. Checkout how to do this on the ros wiki, there are also tutorials on how to do this. 
@@ -34,12 +34,14 @@ minor changes. Checkout how to do this on the ros wiki, there are also tutorials
 
 const float PI = 3.14159265359;
 
+bool mask_odom;
 float average_encoder_counts;
 char direction = 'f';
 geometry_msgs::Twist current_velocity;
 
 void odometryCallback(const GCRobotics::Encoder_msg::ConstPtr& msg);
 void velocityCallback(const geometry_msgs::Twist::ConstPtr& msg);
+void mask_odom_callback(const GCRobotics::command_state::ConstPtr& msg);
 
 int main(int argc, char **argv)
 {
@@ -50,6 +52,7 @@ int main(int argc, char **argv)
     ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 100);
     ros::Subscriber odom_sub = n.subscribe("EncoderData", 100, odometryCallback);
     ros::Subscriber vel_sub = n.subscribe("cmd_vel", 100, velocityCallback);
+    ros::Subscriber mask_odom_sub = n.subscribe("command_state", 100, mask_odom_callback);
     tf::TransformBroadcaster odom_broadcaster;
     
     // x, y, and rotation coordinates for the odom frame
@@ -75,11 +78,12 @@ int main(int argc, char **argv)
 	float linear_y_distance_per_count = y_conversion * wheel_circumference / cpr;
 	
 	ros::Rate r(10);
+
 	while (n.ok())
 	{
 	    ros::spinOnce();
 	    
-	    ros::Time current_time = ros::Time::now();
+        ros::Time current_time = ros::Time::now();
 	    
 	    if (direction == 'w')
 	    {
@@ -137,19 +141,28 @@ int main(int argc, char **argv)
         
         odom_pub.publish(odom);
         
-        r.sleep();
+        average_encoder_counts = 0;
+        current_velocity.linear.x = 0;
+        current_velocity.linear.y = 0;
+        current_velocity.angular.z = 0;
 	}
 }
 
 // averages the encoder counts
 void odometryCallback(const GCRobotics::Encoder_msg::ConstPtr& msg)
 {
-    average_encoder_counts = (msg->encoder1 + msg->encoder2 + msg->encoder3 + msg->encoder4) / 4.0;
+    if (mask_odom)
+        average_encoder_counts = 0;
+    else
+        average_encoder_counts = (msg->encoder1 + msg->encoder2 + msg->encoder3 + msg->encoder4) / 4.0;
 }
 
 // gathers the current velocity and direction
 void velocityCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
+    if (mask_odom)
+    
+
     current_velocity.linear.x = msg->linear.x;
     current_velocity.linear.y = msg->linear.y;
     current_velocity.angular.z = msg->angular.z;
@@ -168,5 +181,10 @@ void velocityCallback(const geometry_msgs::Twist::ConstPtr& msg)
         direction = 'e';
     else
         direction = 'f';
+}
+
+void mask_odom_callback(const GCRobotics::command_state::ConstPtr& msg)
+{
+    mask_odom = msg.mask_odom;
 }
 

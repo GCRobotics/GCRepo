@@ -121,33 +121,32 @@ void gpioCallback( const std_msgs::UInt16& msg)
 void Read() {
   sei(); // enable interrupts inside of this interrrupt, allowing wire function calls to still function instead of blocking
   digitalWrite(13,HIGH);
-  encoders.encoder1 = ReadOne (0x2); // these need to be the right address
-  encoders.encoder2 = ReadOne (0x4); // these need to be the right address
-  encoders.encoder3 = ReadOne (0x6); // these need to be the right address
-  encoders.encoder4 = ReadOne (0x8); // these need to be the right address
-  //delay(5);
+  ReadOne(0x04, &encoders.encoder1, &encoders.Direction1);
+  ReadOne(0x02, &encoders.encoder2, &encoders.Direction2);
+  ReadOne(0x06, &encoders.encoder3, &encoders.Direction3);
+  ReadOne(0x08, &encoders.encoder4, &encoders.Direction4);
+  
+  //Publish the results
   encoderPub.publish(&encoders);
   digitalWrite(13,LOW);
 
 }
 
-int ReadOne(char address) { // pass in the motor you want to read
-  unsigned int encoder[2] = {0,0};
-  int encoderCountTotal = 0;
-  Wire.requestFrom(address>>1, 2);    // request 2 bytes from address
-   // digitalWrite(13,LOW);
+void ReadOne(char address, int *Odometry, int *Direction) {                               // pass in the motor you want to read
+  unsigned int encoder[4] = {0,0,0,0};
+  Wire.requestFrom(address >>1 , 4);    // request 3 bytes from address
    int i = 0;
   while(Wire.available())   // slave may send less than requested
   { 
     encoder[i] = Wire.read();   // receive a byte as character
     i++;
   }
-  //encoders.encoder2 = encoder[0];
   
   encoder[1] = encoder[1] << 8; // Combine the two bytes into one value, lower byte is sent first, upper second.
+  *Odometry = encoder[1] + encoder[0];
   
-  return encoder[1] + encoder[0];
-  
+  encoder[3] = encoder[3] << 8; // Combine the two bytes into one value, lower byte is sent first, upper second.
+  *Direction = encoder[3] + encoder[2];
 }
 
 void sendVoltage()
