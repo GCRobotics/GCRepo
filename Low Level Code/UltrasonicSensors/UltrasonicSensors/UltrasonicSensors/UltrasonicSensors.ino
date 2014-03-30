@@ -23,7 +23,12 @@
 
 // Target Variables
 int SensorTargetRight = 30, SensorTargetBack = 40;
-int StateMachine;
+int StateMachine = 0;
+
+int YTarget = 0;
+int Xtarget = 0;
+int WTarget = 0;
+int TargetFlag = 0;
 
 
 // Create instance of the class Ultrasonic
@@ -39,10 +44,15 @@ Motors RobotMove;
 **********************************************************/
 void setup()
 {
+	Wire.begin();
 	Ultra.initialize();
 	// Attach int.0 interrupt at pin 2
 	attachInterrupt(0,ultraInterrupt,CHANGE);
-	StateMachine = 0;
+	//ForwardTarget = 305;
+	Xtarget = 1124;
+	YTarget = 966;
+	WTarget = 2248;
+
 }
 
 /*********************************************************
@@ -51,13 +61,42 @@ void setup()
 *
 **********************************************************/
 void loop()
-{
+{	
+// Testing RobotMove routine
+// move forward 1 foot and then turn 180*
+	//if (StateMachine == 0)
+	//{
+		//if (TargetFlag == 0){
+			//TargetFlag = RobotMove.moveForward(&YTarget);
+		//}
+		//else {
+			//TargetFlag = 0;
+			//StateMachine++;
+			//delay(5);
+		//}
+	//}
+	//else if (StateMachine == 1)
+	//{
+		//if (TargetFlag == 0){
+			//TargetFlag = RobotMove.moveCW(&WTarget);
+		//}
+		//else {
+			//TargetFlag = 0;
+			//StateMachine++;
+			//delay(5);
+		//}
+	//}
+	//else
+	//RobotMove.stop();
+	
+	
+	
+
+// Working Statemachine
 	//int temp = StateMachine;
 	// Code for the break message:
 	// {Ultra.EchoDistance[0]},{Ultra.EchoDistance[1]}, {Ultra.EchoDistance[2]},{Ultra.EchoDistance[3]},{Ultra.EchoDistance[4]},{Ultra.EchoDistance[5]}
-	Ultra.spinOnce();
-	
-	Ultra.checkPoint(RIGHT,BACK,30,30,NEAR);
+	//Ultra.spinOnce();
 	/*
 	switch (StateMachine)
 	{
@@ -89,7 +128,7 @@ void loop()
 			break;
 	}
 	*/
-	delay(10);
+	//delay(10);
 }
 
 /*********************************************************

@@ -71,7 +71,13 @@ void Ultrasonic::spinOnce()
 			// index = (2/2) - 1 = 0  <-- that's is the index that we want
 			// 
 			// Distance (in cm) = Time / 58   <--  According to the datasheet
-			EchoDistance[((Select/2) - 1)] = InterruptEchoTime / 58;
+			
+			// Don't store the sensor data if it exceed 8 feet or 244
+			int Temp = InterruptEchoTime / 58;
+			if ((Temp >= 0) && (Temp <= 244))
+			{
+				EchoDistance[((Select/2) - 1)] = Temp;
+			}
 		}
 		
 		// Reset to zero at the value of 12
