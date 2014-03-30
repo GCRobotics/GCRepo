@@ -155,17 +155,17 @@ void odometryCallback(const GCRobotics::Encoder_msg::ConstPtr& msg)
     else
         average_encoder_counts = (msg->encoder1 + msg->encoder2 + msg->encoder3 + msg->encoder4) / 4.0;
     
-    if (msg-> dir1 ==1 && msg-> dir2 ==1 && msg-> dir3 ==1 && msg-> dir4 ==1)//needs to be changed to match whats being published
+    if (msg-> Direction1 ==1 && msg-> Direction2 ==1 && msg-> Direction3 ==1 && msg-> Direction4 ==1)//needs to be changed to match whats being published
         direction = 'w';
-    else if (msg-> dir1 ==-1 && msg-> dir2 ==-1 && msg-> dir3 ==-1 && msg-> dir4 ==-1)
+    else if (msg-> Direction1 ==-1 && msg-> Direction2 ==-1 && msg-> Direction3 ==-1 && msg-> Direction4 ==-1)
         direction = 's';
-    else if (msg-> dir1 ==-1 && msg-> dir2 ==1 && msg-> dir3 ==-1 && msg-> dir4 ==1)
+    else if (msg-> Direction1 ==-1 && msg-> Direction2 ==1 && msg-> Direction3 ==-1 && msg-> Direction4 ==1)
         direction = 'a';
-    else if (msg-> dir1 ==1 && msg-> dir2 ==-1 && msg-> dir3 ==1 && msg-> dir4 ==-1)
+    else if (msg-> Direction1 ==1 && msg-> Direction2 ==-1 && msg-> Direction3 ==1 && msg-> Direction4 ==-1)
         direction = 'd';
-    else if (msg-> dir1 ==1 && msg-> dir2 ==1 && msg-> dir3 ==-1 && msg-> dir4 ==-1)
+    else if (msg-> Direction1 ==1 && msg-> Direction2 ==1 && msg-> Direction3 ==-1 && msg-> Direction4 ==-1)
         direction = 'q';
-    else if (msg-> dir1 ==-1 && msg-> dir2 ==-1 && msg-> dir3 ==1 && msg-> dir4 ==1)
+    else if (msg-> Direction1 ==-1 && msg-> Direction2 ==-1 && msg-> Direction3 ==1 && msg-> Direction4 ==1)
         direction = 'e';
     else
         direction = 'f';
