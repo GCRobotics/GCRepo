@@ -209,7 +209,10 @@ void ReadOne(char address, float *Odometry, bool *Direction) {                  
   *Odometry = encoder[1] + encoder[0];
   
   encoder[3] = encoder[3] << 8; // Combine the two bytes into one value, lower byte is sent first, upper second.
-  *Direction = encoder[3] + encoder[2];
+  if( encoder[3] + encoder[2]==1)
+    *Direction = true;
+  else
+    *Direction = false;
 }
 
 void sendVoltage()
