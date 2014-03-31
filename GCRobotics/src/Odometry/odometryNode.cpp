@@ -68,11 +68,8 @@ int main(int argc, char **argv)
 	float w_conversion = 0.809; // efficiency scalar. how much of a revolution is actually converted to rotational motion
 	float wheel_radius = 0.02699;
 	float wheel_circumference = 2 * PI * wheel_radius;
-<<<<<<< HEAD
 	float cpr = 546.0; // encoder counts per revolution of the wheel
-=======
 	float cpr = 546.0; // encoder counts per revolution of the wheel-changed
->>>>>>> 3b3907ec2f47cd7a662a5efb3f6cc240b1d02db7
 	float degrees_per_circle = 360.0;
 	float radians_per_degree = PI / 180.0;
 	float circle_circumference = 1.13; // approximate
@@ -180,36 +177,12 @@ void odometryCallback(const GCRobotics::Encoder_msg::ConstPtr& msg)
 void velocityCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
     if (mask_odom)
-<<<<<<< HEAD
     {
         current_velocity.linear.x = 0;
         current_velocity.linear.y = 0;
         current_velocity.angular.z = 0;
         direction = 'f';
     }
-    else
-    {
-        current_velocity.linear.x = msg->linear.x;
-        current_velocity.linear.y = msg->linear.y;
-        current_velocity.angular.z = msg->angular.z;
-
-        if (msg->linear.x > 0)
-            direction = 'w';
-        else if (msg->linear.x < 0)
-            direction = 's';
-        else if (msg->linear.y > 0)
-            direction = 'a';
-        else if (msg->linear.y < 0)
-            direction = 'd';
-        else if (msg->angular.z > 0)
-            direction = 'q';
-        else if (msg->angular.z < 0)
-            direction = 'e';
-        else
-            direction = 'f';
-    }
-=======
-    
 
     current_velocity.linear.x = msg->linear.x;
     current_velocity.linear.y = msg->linear.y;
@@ -229,7 +202,6 @@ void velocityCallback(const geometry_msgs::Twist::ConstPtr& msg)
         direction = 'e';
     else
         direction = 'f';*/
->>>>>>> 3b3907ec2f47cd7a662a5efb3f6cc240b1d02db7
 }
 
 void mask_odom_callback(const GCRobotics::command_state::ConstPtr& msg)
