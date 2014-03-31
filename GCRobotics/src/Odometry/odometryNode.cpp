@@ -69,7 +69,6 @@ int main(int argc, char **argv)
 	float wheel_radius = 0.02699;
 	float wheel_circumference = 2 * PI * wheel_radius;
 	float cpr = 546.0; // encoder counts per revolution of the wheel
-	float cpr = 546.0; // encoder counts per revolution of the wheel-changed
 	float degrees_per_circle = 360.0;
 	float radians_per_degree = PI / 180.0;
 	float circle_circumference = 1.13; // approximate
@@ -157,17 +156,17 @@ void odometryCallback(const GCRobotics::Encoder_msg::ConstPtr& msg)
     else
         average_encoder_counts = (msg->encoder1 + msg->encoder2 + msg->encoder3 + msg->encoder4) / 4.0;
     
-    if (msg-> Direction1 ==1 && msg-> Direction2 ==1 && msg-> Direction3 ==1 && msg-> Direction4 ==1)//needs to be changed to match whats being published
+    if (msg-> direction1 ==1 && msg-> direction2 ==1 && msg-> direction3 ==1 && msg-> direction4 ==1)//needs to be changed to match whats being published
         direction = 'w';
-    else if (msg-> Direction1 ==-1 && msg-> Direction2 ==-1 && msg-> Direction3 ==-1 && msg-> Direction4 ==-1)
+    else if (msg-> direction1 ==-1 && msg-> direction2 ==-1 && msg-> direction3 ==-1 && msg-> direction4 ==-1)
         direction = 's';
-    else if (msg-> Direction1 ==-1 && msg-> Direction2 ==1 && msg-> Direction3 ==-1 && msg-> Direction4 ==1)
+    else if (msg-> direction1 ==-1 && msg-> direction2 ==1 && msg-> direction3 ==-1 && msg-> direction4 ==1)
         direction = 'a';
-    else if (msg-> Direction1 ==1 && msg-> Direction2 ==-1 && msg-> Direction3 ==1 && msg-> Direction4 ==-1)
+    else if (msg-> direction1 ==1 && msg-> direction2 ==-1 && msg-> direction3 ==1 && msg-> direction4 ==-1)
         direction = 'd';
-    else if (msg-> Direction1 ==1 && msg-> Direction2 ==1 && msg-> Direction3 ==-1 && msg-> Direction4 ==-1)
+    else if (msg-> direction1 ==1 && msg-> direction2 ==1 && msg-> direction3 ==-1 && msg-> direction4 ==-1)
         direction = 'q';
-    else if (msg-> Direction1 ==-1 && msg-> Direction2 ==-1 && msg-> Direction3 ==1 && msg-> Direction4 ==1)
+    else if (msg-> direction1 ==-1 && msg-> direction2 ==-1 && msg-> direction3 ==1 && msg-> direction4 ==1)
         direction = 'e';
     else
         direction = 'f';
