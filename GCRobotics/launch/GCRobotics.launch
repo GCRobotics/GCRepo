@@ -1,6 +1,6 @@
 <launch>
 
-<node pkg="nodelet" type="nodelet" name="openni_manager" output="screen" respawn="true" args="manager"/>
+<!--<node pkg="nodelet" type="nodelet" name="openni_manager" output="screen" respawn="true" args="manager"/>-->
 
 
 <!-- Motion Control node - Convert Velocity message to i2c messages for i2cNode to send -->
@@ -10,15 +10,15 @@
 <!-- <node name="DeadReckoner" pkg="GCRobotics" type="DeadReckoner" /> -->
 
 <!-- Openni - Kinect pointcloud generation, from openni package -->
-<include file="$(find freenect_launch)/launch/freenect.launch" />
+<!--<include file="$(find freenect_launch)/launch/freenect.launch" />-->
 
 <!-- Prep for laser scan -->
-<node pkg="nodelet" type="nodelet" name="pointcloud_throttle" args="load depthimage_to_laserscan/DepthImageToLaserScanNodelet openni_manager" respawn="true">
+<!--<node pkg="nodelet" type="nodelet" name="pointcloud_throttle" args="load depthimage_to_laserscan/DepthImageToLaserScanNodelet openni_manager" respawn="true">
     <param name="max_rate" value="10"/>
     <remap from="cloud_in" to="/camera/depth/points"/>
         <param name="output_frame_id" value="/base_link"/>
         <remap from="image" to="/camera/depth/image_raw"/>
-</node>
+</node>-->
 
 <!-- Map Server -->
 <node pkg="map_server" type="map_server" args="/home/gcr/GCRepo/GCRobotics/ideal_arena.yaml" respawn="true" name="map_server" />
@@ -30,15 +30,18 @@
 <node name="transform_bc_node" pkg="GCRobotics" type="transform_bc_node" />
 
 <!-- GMapping - generate occ grid from laserscan -->
-<include file="$(find GCRobotics)/launch/gmapping.launch" />
+<!--<include file="$(find GCRobotics)/launch/gmapping.launch" />-->
 
-<node pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen">
+<!--<node pkg="move_base" type="move_base" respawn="true" name="move_base" output="screen">
     <rosparam file="$(find GCRobotics)/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find GCRobotics)/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find GCRobotics)/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find GCRobotics)/global_costmap_params.yaml" command="load" />
     <rosparam file="$(find GCRobotics)/base_local_planner_params.yaml" command="load" />
-</node>
+</node>-->
+
+<!-- Command Node -->
+<node name="command_node" pkg="GCRobotics" type="command_node" output="screen" />
 
 </launch>
 

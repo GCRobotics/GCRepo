@@ -1,4 +1,3 @@
-
 /*
 
 		NAME 	 - Arduino Control Bridge 
@@ -36,12 +35,14 @@ issue.
 #include <Wire.h>
 #include <GCRobotics/Encoder_msg.h>
 #include <GCRobotics/i2cData.h>
+#include <GCRobotics/command_state.h>
 #include <std_msgs/Float32.h>
 #include <std_msgs/UInt16.h>
 #include <TimerOne.h>
 
 void i2cCallback( const GCRobotics::i2cData& msg);
 void gpioCallback( const std_msgs::UInt16& msg);
+void command_callback(const GCRobotics::command_state& msg);
 void Read();
 int ReadOne(char address);
 
@@ -49,13 +50,18 @@ ros::NodeHandle n;
 
 //Message data variables
 GCRobotics::Encoder_msg encoders;
+int ros_state;
+int arduino_state;
+GCRobotics::command_state _state;
 std_msgs::Float32 voltage;
 std_msgs::UInt16 errorCode;
 //pubs
 ros::Publisher encoderPub("EncoderData", &encoders);
+ros::Publisher command_pub("/command_state", &_state);
 ros::Publisher diagPub("BatteryVoltage", &voltage);
 ros::Publisher errorPub("ArduinoError", &errorCode);
 // subs
+ros::Subscriber<GCRobotics::command_state> command_sub("command_state", &command_callback);
 ros::Subscriber<GCRobotics::i2cData> i2cSub("i2cSend", &i2cCallback );
 ros::Subscriber<std_msgs::UInt16> gpioSub("gpio", &gpioCallback);
 
@@ -63,9 +69,11 @@ void setup(){
   Wire.begin(); // join i2c bus
   n.initNode();
   n.advertise(encoderPub);
+  n.advertise(command_pub);
   n.advertise(diagPub);
   n.advertise(errorPub);
   
+  n.subscribe(command_sub);
   n.subscribe(i2cSub);
   n.subscribe(gpioSub);
 
@@ -80,7 +88,57 @@ void setup(){
 }
 
 void loop(){
-  n.spinOnce();
+    n.spinOnce();
+    
+    switch (arduino_state)
+    {
+        case 0:
+            digitalWrite(13, HIGH);
+            delay(5000);
+            _state.state = ++arduino_state;
+            command_pub.publish(&_state);
+            break;
+        case 2: 
+            digitalWrite(13, HIGH);
+            delay(5000);
+            _state.state = ++arduino_state;
+            command_pub.publish(&_state);
+            break;
+        case 4: 
+            digitalWrite(13, HIGH);
+            delay(5000);
+            _state.state = ++arduino_state;
+            command_pub.publish(&_state);
+            break;
+        case 6: 
+            digitalWrite(13, HIGH);
+            delay(5000);
+            _state.state = ++arduino_state;
+            command_pub.publish(&_state);
+            break;
+        case 8: 
+            digitalWrite(13, HIGH);
+            delay(5000);
+            _state.state = ++arduino_state;
+            command_pub.publish(&_state);
+            break;
+        case 10: 
+            digitalWrite(13, HIGH);
+            delay(5000);
+            _state.state = ++arduino_state;
+            command_pub.publish(&_state);
+            break;
+        case 12: 
+            digitalWrite(13, HIGH);
+            delay(5000);
+            _state.state = ++arduino_state;
+            command_pub.publish(&_state);
+            break;
+        default:
+            arduino_state = ros_state;
+    }
+
+
   
   /*
   TRANSMIT TESTING CODE
@@ -96,6 +154,11 @@ void loop(){
   */
   
   
+}
+
+void command_callback(const GCRobotics::command_state& msg)
+{
+    ros_state = msg.state;
 }
 
 void i2cCallback( const GCRobotics::i2cData& msg)

@@ -22,6 +22,11 @@
     :initarg :messageData
     :type cl:fixnum
     :initform 0)
+   (messageData2
+    :reader messageData2
+    :initarg :messageData2
+    :type cl:fixnum
+    :initform 0)
    (expectDataBack
     :reader expectDataBack
     :initarg :expectDataBack
@@ -52,6 +57,11 @@
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader GCRobotics-msg:messageData-val is deprecated.  Use GCRobotics-msg:messageData instead.")
   (messageData m))
 
+(cl:ensure-generic-function 'messageData2-val :lambda-list '(m))
+(cl:defmethod messageData2-val ((m <i2cData>))
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader GCRobotics-msg:messageData2-val is deprecated.  Use GCRobotics-msg:messageData2 instead.")
+  (messageData2 m))
+
 (cl:ensure-generic-function 'expectDataBack-val :lambda-list '(m))
 (cl:defmethod expectDataBack-val ((m <i2cData>))
   (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader GCRobotics-msg:expectDataBack-val is deprecated.  Use GCRobotics-msg:expectDataBack instead.")
@@ -61,6 +71,7 @@
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'address)) ostream)
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'messageType)) ostream)
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'messageData)) ostream)
+  (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'messageData2)) ostream)
   (cl:write-byte (cl:ldb (cl:byte 8 0) (cl:if (cl:slot-value msg 'expectDataBack) 1 0)) ostream)
 )
 (cl:defmethod roslisp-msg-protocol:deserialize ((msg <i2cData>) istream)
@@ -68,6 +79,7 @@
     (cl:setf (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'address)) (cl:read-byte istream))
     (cl:setf (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'messageType)) (cl:read-byte istream))
     (cl:setf (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'messageData)) (cl:read-byte istream))
+    (cl:setf (cl:ldb (cl:byte 8 0) (cl:slot-value msg 'messageData2)) (cl:read-byte istream))
     (cl:setf (cl:slot-value msg 'expectDataBack) (cl:not (cl:zerop (cl:read-byte istream))))
   msg
 )
@@ -79,18 +91,19 @@
   "GCRobotics/i2cData")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<i2cData>)))
   "Returns md5sum for a message object of type '<i2cData>"
-  "c17484e7b26b31d2a1c50a7b05afae82")
+  "d01c895b6711f1c2ae3a87aec070ecb6")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql 'i2cData)))
   "Returns md5sum for a message object of type 'i2cData"
-  "c17484e7b26b31d2a1c50a7b05afae82")
+  "d01c895b6711f1c2ae3a87aec070ecb6")
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql '<i2cData>)))
   "Returns full string definition for message of type '<i2cData>"
-  (cl:format cl:nil "uint8 address~%uint8 messageType~%uint8 messageData~%bool expectDataBack~%~%~%"))
+  (cl:format cl:nil "uint8 address~%uint8 messageType~%uint8 messageData~%uint8 messageData2~%bool expectDataBack~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:message-definition ((type (cl:eql 'i2cData)))
   "Returns full string definition for message of type 'i2cData"
-  (cl:format cl:nil "uint8 address~%uint8 messageType~%uint8 messageData~%bool expectDataBack~%~%~%"))
+  (cl:format cl:nil "uint8 address~%uint8 messageType~%uint8 messageData~%uint8 messageData2~%bool expectDataBack~%~%~%"))
 (cl:defmethod roslisp-msg-protocol:serialization-length ((msg <i2cData>))
   (cl:+ 0
+     1
      1
      1
      1
@@ -102,5 +115,6 @@
     (cl:cons ':address (address msg))
     (cl:cons ':messageType (messageType msg))
     (cl:cons ':messageData (messageData msg))
+    (cl:cons ':messageData2 (messageData2 msg))
     (cl:cons ':expectDataBack (expectDataBack msg))
 ))
