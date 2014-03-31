@@ -44,7 +44,7 @@ void i2cCallback( const GCRobotics::i2cData& msg);
 void gpioCallback( const std_msgs::UInt16& msg);
 void command_callback(const GCRobotics::command_state& msg);
 void Read();
-int ReadOne(char address);
+void ReadOne(char,float*,bool*);
 
 ros::NodeHandle n;
 
@@ -182,12 +182,12 @@ void gpioCallback( const std_msgs::UInt16& msg)
 }
 
 void Read() {
-  sei(); // enable interrupts inside of this interrrupt, allowing wire function calls to still function instead of blocking
+  sei(); // enable interrupts inside of this interrrupt, allowing wire function calls to still function instead of blocking, fixed your n00bish ways
   digitalWrite(13,HIGH);
-  ReadOne(0x04, &encoders.encoder1, &encoders.Direction1);
-  ReadOne(0x02, &encoders.encoder2, &encoders.Direction2);
-  ReadOne(0x06, &encoders.encoder3, &encoders.Direction3);
-  ReadOne(0x08, &encoders.encoder4, &encoders.Direction4);
+  ReadOne(0x04, &encoders.encoder1, &encoders.direction1);
+  ReadOne(0x02, &encoders.encoder2, &encoders.direction2);
+  ReadOne(0x06, &encoders.encoder3, &encoders.direction3);
+  ReadOne(0x08, &encoders.encoder4, &encoders.direction4);
   
   //Publish the results
   encoderPub.publish(&encoders);
@@ -195,7 +195,7 @@ void Read() {
 
 }
 
-void ReadOne(char address, int *Odometry, int *Direction) {                               // pass in the motor you want to read
+void ReadOne(char address, float *Odometry, bool *Direction) {                               // pass in the motor you want to read
   unsigned int encoder[4] = {0,0,0,0};
   Wire.requestFrom(address >>1 , 4);    // request 3 bytes from address
    int i = 0;
