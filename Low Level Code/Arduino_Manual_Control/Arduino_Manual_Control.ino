@@ -47,6 +47,7 @@ int RobotSpeed = MediumSpeed;
 int COUNTS = 0;         // This will contain the number of counts per loop. NOT the total distance
 int i2cDirection = 0, i2cSpeed = 0;   // for incoming serial data
 int ODOM1 = 0, ODOM2 = 0, ODOM3 = 0, ODOM4 = 0;
+int Direction1 = 0, Direction2 = 0, Direction3 = 0, Direction4 = 0; 
 
 void setup(){
   Wire.begin(); // join i2c bus
@@ -60,6 +61,10 @@ void setup(){
 
 void loop()
 {
+  Serial.print("              ODOM1:    "); Serial.print(ODOM1); Serial.print("              Direction1:    "); Serial.println((int)Direction1);
+  Serial.print("              ODOM2:    "); Serial.print(ODOM2); Serial.print("              Direction2:    "); Serial.println((int)Direction2);
+  Serial.print("              ODOM3:    "); Serial.print(ODOM3); Serial.print("              Direction3:    "); Serial.println((int)Direction3);
+  Serial.print("              ODOM4:    "); Serial.print(ODOM4); Serial.print("              Direction4:    "); Serial.println((int)Direction4);
   while (Serial.available() > 0) {
 
     // look for the next valid integer in the incoming serial stream:
@@ -149,15 +154,6 @@ void loop()
     {
       RobotSpeed = FastSpeed;
     }
-   else if (SerialInput == 99)
-   {
-     ODOM1 = ReadOne (Front_Left);
-     ODOM2 = ReadOne (Front_Right);
-     ODOM3 = ReadOne (Back_Right);
-     ODOM4 = ReadOne (Back_Left);
-     Serial.print("ODOM1:    "); Serial.print(ODOM1); Serial.print("              ODOM2:    "); Serial.println(ODOM2);
-     Serial.print("ODOM3:    "); Serial.print(ODOM3); Serial.print("              ODOM4:    "); Serial.println(ODOM4);
-   }
     else {
       Serial.println ("Invalid Input!!");
     }
@@ -173,10 +169,9 @@ void i2cWrite ( char Address, char Speed , char Direction)
     Wire.endTransmission();
 }
 
-int ReadOne(char address) {                               // pass in the motor you want to read
-  unsigned int encoder[2] = {0,0};
-  int encoderCountTotal = 0;
-  Wire.requestFrom(address >>1 , 2);    // request 2 bytes from address
+void ReadOne(char address, int *Odometry, int *Direction) {                               // pass in the motor you want to read
+  unsigned int encoder[4] = {0,0,0,0};
+  Wire.requestFrom(address >>1 , 4);    // request 3 bytes from address
    int i = 0;
   while(Wire.available())   // slave may send less than requested
   { 
@@ -185,17 +180,18 @@ int ReadOne(char address) {                               // pass in the motor y
   }
   
   encoder[1] = encoder[1] << 8; // Combine the two bytes into one value, lower byte is sent first, upper second.
+  *Odometry = encoder[1] + encoder[0];
   
-  return encoder[1] + encoder[0];
+  encoder[3] = encoder[3] << 8; // Combine the two bytes into one value, lower byte is sent first, upper second.
+  *Direction = encoder[3] + encoder[2];
 }
 
 void Read() {
   sei(); // enable interrupts inside of this interrrupt, allowing wire function calls to still function instead of blocking
- 
-  Serial.print("ODOM1:    "); Serial.print(ReadOne (0x2)); Serial.print("              ODOM2:    "); Serial.println(ReadOne (0x4));
-  Serial.print("ODOM3:    "); Serial.print(ReadOne (0x6)); Serial.print("              ODOM4:    "); Serial.println(ReadOne (0x8));
-  
-
+  ReadOne(0x04, &ODOM2, &Direction2);
+  ReadOne(0x02, &ODOM1, &Direction1);
+  ReadOne(0x06, &ODOM3, &Direction3);
+  ReadOne(0x08, &ODOM4, &Direction4);
 }
 
 

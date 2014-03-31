@@ -73,18 +73,18 @@ __CONFIG(BOR4V_BOR40V & WRT_OFF);
 //  depending on the motor position (front left motor, for example), only
 //  these definitions will need to change
 
-/************** Right side PICs **************/
+/************** Right side PICs **************
 /////////////// PIC's address for I2C //////////////////
- //#define I2C_ADDRESS 0x02        // FRONT RIGHT motor address
- #define I2C_ADDRESS 0x04        // BACK RIGHT motor addres
+ #define I2C_ADDRESS 0x02        // FRONT RIGHT motor address
+ //#define I2C_ADDRESS 0x04        // BACK RIGHT motor addres
 
 /////////////// PIC specific depending on wheel orientation //////////
  #define MOTOR_DIRECTION i2cDirection
  #define FORWARD     1
  #define BACKWARD !FORWARD
-//**********************************************/
+**********************************************/
 
-/************** Left side PICs **************
+/************** Left side PICs **************/
           /////////////// PIC's address for I2C //////////////////
 //#define I2C_ADDRESS 0x06        // BACK LEFT motor address
 #define I2C_ADDRESS 0x08        // FRONT LEFT motor address
@@ -93,7 +93,7 @@ __CONFIG(BOR4V_BOR40V & WRT_OFF);
  #define MOTOR_DIRECTION i2cDirection
  #define FORWARD     0
  #define BACKWARD !FORWARD
-**********************************************/
+/**********************************************/
 
 #define PWM_OFFSET  80          // Motor won't spin until a certain amount of voltage
                                 // is applied to it.
@@ -136,6 +136,8 @@ int TMR0OverflowCounter = 0;                // This will keep track of the numbe
   int PreviousError       = 0;              // Well....self explained. haha
   int CurrentPwm          = 0;              // current pulse width pushed to PWM
                                                 // can have a min of 0 and max of 255
+  int I2cDirection = 1;                     // 1 = the motor is moving forward
+                                            // -1 = the motor is moving backward
 
 // Register that holds flags that are set in software upon determination of
 //  the cause of an interrupt.  These flags are continuously checked in the
@@ -347,9 +349,16 @@ void updateOdometry()
 void setDirection(int dir)
 {
     if (dir == 0)          // if I2C passes down direction of 0, it is forward
+    {
         PORTBbits.RB3 = FORWARD;        // forward
+        I2cDirection = 1;
+    }
+
     else if (dir == 1)
+    {
         PORTBbits.RB3 = BACKWARD;       // reverse
+        I2cDirection = -1;
+    }
     else
         PORTBbits.RB3 = FORWARD;        // default to motor forward
 }

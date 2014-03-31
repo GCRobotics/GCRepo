@@ -40,6 +40,7 @@
 #include <pic16f887.h>
 
 extern   int OdometryCounts;          // load from primary887main.c
+extern   int I2cDirection;
 
 void i2cInit(char address){
 
@@ -100,9 +101,19 @@ void i2cIsrHandler(){
 		// The second char of the message is being sent though
         if (i2cWriteInt == 1)
         {
-            i2cWriteInt = 0;
+            i2cWriteInt++;
             i2cSend(OdometryCounts >> 8);
             OdometryCounts = 0;
+        }
+        else if (i2cWriteInt == 2)
+        {
+            i2cWriteInt++;
+            i2cSend(I2cDirection);
+        }
+        else if (i2cWriteInt == 3)
+        {
+            i2cWriteInt = 0;
+            i2cSend(I2cDirection >> 8);
         }
     }else
 	{
