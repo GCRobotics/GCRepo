@@ -366,7 +366,6 @@ void Ultrasonic::checkPoint(char Side, char Face, int XTarget, int YTarget, int 
 			{
 				TargetFlag = 0;
 				delay(5);
-				WFlag = 0;
 			}
 			
 			// If the difference of the 2 right sensors are greater than the tolerance

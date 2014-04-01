@@ -53,7 +53,7 @@ void loop()
 			if (TargetFlag == 0){
 				TargetFlag = RobotMove.moveForward(&YTarget);
 			}
-			else {
+			if (TargetFlag == 1) {
 				TargetFlag = 0;
 				StateMachine++;
 				RobotMove.stop();

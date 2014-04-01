@@ -19,7 +19,7 @@
 #define SENSOR_RIGHT_2		1
 #define SENSOR_BACK_1		2
 #define SENSOR_TOLERANCE	3
-#define PARALLEL_TOLERANCE  5 
+#define PARALLEL_TOLERANCE  1 
 #define MAX_DISTANCE		244   //244 cm = 8 feet
 
 #define LEFT	0
@@ -33,6 +33,10 @@
 #define X_OFFSET 15
 #define Y_OFFSET 5
 #define STOP_DELAY 30
+#define SPIN_PERIOD 2
+#define CHECKPOINT_PERIOD 1
+#define MOTOR_PERIOD 50
+
 
 /*******************************************************************
 *		Constant to tell the robot how many degrees to move by in order to make it self 
@@ -44,7 +48,7 @@
 *
 *		Degrees to move  = C / D
 ********************************************************************/
-#define DEGREES_TO_MOVE 3
+#define DEGREES_TO_MOVE 9
 #define X_COUNTS_PER_CM 41
 #define Y_COUNTS_PER_CM 32
 
@@ -79,11 +83,11 @@ class Ultrasonic
 	~Ultrasonic();
 	void interrupt();
 	void initialize();
-	void spinOnce();
+	void spinOnce(char Face);
 	void trigger();
 	void addressSelect(int Address);
 	void pinSelect (int Address);
-	void checkPoint(char Side, char Face, int XTartget, int YTarget, int Near);
+	void checkPoint(char Face, int XTartget, int YTarget);
 	void forward();
 	void turn90Cw();
 	void stop();

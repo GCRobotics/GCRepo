@@ -138,6 +138,8 @@ int TMR0OverflowCounter = 0;                // This will keep track of the numbe
                                                 // can have a min of 0 and max of 255
   int I2cDirection = 1;                     // 1 = the motor is moving forward
                                             // -1 = the motor is moving backward
+  char TargetZeroFlag = 0;                  // Flag to make sure that the robot skips
+                                            // the first PID loop after recieving a stop command
 
 // Register that holds flags that are set in software upon determination of
 //  the cause of an interrupt.  These flags are continuously checked in the
@@ -181,8 +183,8 @@ int main()
             OdometryCounts = 0;             // Reset the variables for PID and odometry
             if (i2cTarget == 0)             // This to ensure a sharp stop
             {
-                AccumulatedError = 0;
                 setPWM(0);
+                TargetZeroFlag = 1;
             }
             // Clear Flag
             F.I2C = 0;
@@ -205,6 +207,16 @@ int main()
             // Update to most recent encoder counts
             updateEncoder();
 
+            // If we recieve a stop command then just skip the first PID loop
+            // This gives the motor enough time to react to the stop command
+            // Without it, the motor will jitter a little bit after a stop command
+            // is sent.
+            if (TargetZeroFlag == 1)
+            {
+                AccumulatedError = 0;
+                EncoderCounts = 0;
+                TargetZeroFlag = 0;
+            }
 /*************** Calculate stuff for PID **********************************************/
             Error               = Target - EncoderCounts;
             AccumulatedError    = AccumulatedError + Error;

@@ -132,7 +132,6 @@ int Motors::moveForward( int *Target)
 			return 1;
 		}
 		else return 0;
-		
 	}
 }
 
@@ -156,7 +155,6 @@ int Motors::moveBackward( int *Target)
 			return 1;
 		}
 		else return 0;
-		
 	}
 }
 
@@ -189,7 +187,7 @@ int Motors::moveRight( int *Target)
 {
 	if (FirstTime != 1)
 	{
-		right(SlowSpeed);
+		right(MediumSpeed);
 		FirstTime = 1;
 	}
 	if ( (millis() - PreviousTime) >= SAMPLING_PERIOD)
@@ -200,7 +198,7 @@ int Motors::moveRight( int *Target)
 		// If target is reached
 		if ((*Target) <= 0)
 		{
-			//FirstTime = 0;
+			FirstTime = 0;
 			stop();
 			return 1;
 		}
@@ -212,7 +210,7 @@ int Motors::moveLeft( int *Target)
 {
 	if (FirstTime != 1)
 	{
-		left(SlowSpeed);
+		left(MediumSpeed);
 		FirstTime = 1;
 	}
 	if ( (millis() - PreviousTime) >= SAMPLING_PERIOD)
@@ -223,7 +221,7 @@ int Motors::moveLeft( int *Target)
 		// If target is reached
 		if ((*Target) <= 0)
 		{
-			//FirstTime = 0;
+			FirstTime = 0;
 			stop();
 			return 1;
 		}
@@ -275,7 +273,7 @@ int Motors::moveCW( int *Target)
 		// If target is reached
 		if ((*Target) <= 0)
 		{
-			//FirstTime = 0;
+			FirstTime = 0;
 			stop();
 			return 1;
 		}
@@ -298,7 +296,7 @@ int Motors::moveCCW( int *Target)
 		// If target is reached
 		if ((*Target) <= 0)
 		{
-			//FirstTime = 0;
+			FirstTime = 0;
 			stop();
 			return 1;
 		}
