@@ -32,7 +32,6 @@
 
 #define X_OFFSET 15
 #define Y_OFFSET 5
-#define STOP_DELAY 30
 
 /*******************************************************************
 *		Constant to tell the robot how many degrees to move by in order to make it self 

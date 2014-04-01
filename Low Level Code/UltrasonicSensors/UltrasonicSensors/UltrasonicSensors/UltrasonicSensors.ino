@@ -62,32 +62,34 @@ void setup()
 **********************************************************/
 void loop()
 {	
-// Testing RobotMove routine
-// move forward 1 foot and then turn 180*
-	//if (StateMachine == 0)
-	//{
-		//if (TargetFlag == 0){
-			//TargetFlag = RobotMove.moveForward(&YTarget);
-		//}
-		//else {
-			//TargetFlag = 0;
-			//StateMachine++;
-			//delay(5);
-		//}
-	//}
-	//else if (StateMachine == 1)
-	//{
-		//if (TargetFlag == 0){
-			//TargetFlag = RobotMove.moveCW(&WTarget);
-		//}
-		//else {
-			//TargetFlag = 0;
-			//StateMachine++;
-			//delay(5);
-		//}
-	//}
-	//else
-	//RobotMove.stop();
+ //Testing RobotMove routine
+ //move forward 1 foot and then turn 180*
+ /*
+	if (StateMachine == 0)
+	{
+		if (TargetFlag == 0){
+			TargetFlag = RobotMove.moveForward(&YTarget);
+		}
+		else {
+			TargetFlag = 0;
+			StateMachine++;
+			delay(5);
+		}
+	}
+	else if (StateMachine == 1)
+	{
+		if (TargetFlag == 0){
+			TargetFlag = RobotMove.moveCW(&WTarget);
+		}
+		else {
+			TargetFlag = 0;
+			StateMachine++;
+			delay(5);
+		}
+	}
+	else
+	RobotMove.stop();
+	*/
 	
 	
 	
@@ -96,39 +98,16 @@ void loop()
 	//int temp = StateMachine;
 	// Code for the break message:
 	// {Ultra.EchoDistance[0]},{Ultra.EchoDistance[1]}, {Ultra.EchoDistance[2]},{Ultra.EchoDistance[3]},{Ultra.EchoDistance[4]},{Ultra.EchoDistance[5]}
-	//Ultra.spinOnce();
-	/*
-	switch (StateMachine)
-	{
-		case 0:
-			Ultra.checkPoint(RIGHT,BACK,30,30,NEAR);
-			if (Ultra.CheckPointFlag == 1){
-				StateMachine++;}
-			break;
-		case 1:
-			Ultra.forward();
-			Ultra.forward();
-			delay(5500);
-			StateMachine++;
-			Ultra.stop();
-			break;
-		case 2:
-			Ultra.checkPoint(RIGHT,FRONT,30,30,FAR);
-			if (Ultra.CheckPointFlag == 1){
-				StateMachine++;}
-			break;
-		case 3:
-			Ultra.turn90Cw();
-			Ultra.turn90Cw();
-			Ultra.forward();
-			Ultra.forward();
-			delay(5500);
-			Ultra.turn90Cw();
-			StateMachine++;
-			break;
-	}
-	*/
-	//delay(10);
+	Ultra.spinOnce();
+	////switch (StateMachine)
+	////{
+		////case 0:
+		////Ultra.checkPoint(LEFT,BACK,30,30,NEAR);
+		////if (Ultra.CheckPointFlag == 1){
+			////StateMachine++;}
+		////break;
+	////}
+	delay(10);
 }
 
 /*********************************************************

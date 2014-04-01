@@ -26,6 +26,7 @@ Ultrasonic::Ultrasonic()
 	FullSet = 0;
 	StateMachine = 0;
 	CheckPointFlag = 0;
+	TargetFlag = 0;
 } //Ultrasonic
 
 // default destructor
@@ -52,8 +53,6 @@ void Ultrasonic::initialize()
 	digitalWrite(ADDR1_PIN, LOW);
 	digitalWrite(ADDR2_PIN, LOW);
 	digitalWrite(TRIGGER_PIN, LOW);
-	
-	
 }
 
 void Ultrasonic::spinOnce()
@@ -74,7 +73,7 @@ void Ultrasonic::spinOnce()
 			
 			// Don't store the sensor data if it exceed 8 feet or 244
 			int Temp = InterruptEchoTime / 58;
-			if ((Temp >= 0) && (Temp <= 244))
+			if ((Temp >= 0) && (Temp <= MAX_DISTANCE))
 			{
 				EchoDistance[((Select/2) - 1)] = Temp;
 			}
@@ -86,7 +85,7 @@ void Ultrasonic::spinOnce()
 			Select = 0;
 			// Set FullSet high to indicate that we have now filled the complete array
 			// this variable is so that the robot doesn't start moving with the array not completed
-			FullSet = 1; 
+			FullSet++; 
 		}
 		
 		// Set the address pins to the correct address
@@ -158,6 +157,7 @@ void Ultrasonic::pinSelect (int Address)
 	// Set the most sig. digit
 	digitalWrite(ADDR2_PIN, (Address & 0x04));
 }
+
 
 void Ultrasonic::checkPoint(char Side, char Face, int XTarget, int YTarget, int Near)
 {
@@ -313,21 +313,168 @@ void Ultrasonic::checkPoint(char Side, char Face, int XTarget, int YTarget, int 
 	}
 }
 
-void Ultrasonic::forward()
-{
-	Robot.forward(FastSpeed);
-}
 
-void Ultrasonic::turn90Cw()
-{
-	Robot.cw(FastSpeed);
-	Robot.cw(FastSpeed);
-	delay(1320);
-	Robot.stop();
-	Robot.stop();
-}
-
-void Ultrasonic::stop()
-{
-	Robot.stop();
-}
+//void Ultrasonic::checkPoint(char Side, char Face, int XTarget, int YTarget, int Near)
+//{
+	//CheckPointFlag = 0;
+	//// If we have finally collect the first set of the ultrasonic data
+	//if (FullSet >= 4)
+	//{
+		//int XCurrent1 = X_OFFSET + EchoDistance[Side ? 0:4];
+		//int XCurrent2 = X_OFFSET + EchoDistance[Side ? 1:3];
+		//int YCurrent  = Y_OFFSET + EchoDistance[Face ? 5:2];
+		//
+		//// Making sure that we have the correct orientation
+		////if (StateMachine == 0)
+		////{
+			////// Side that we are using should always be smaller than the side that we don't want
+			////// If it is bigger then just rotate clockwise until you are at the correct orientation
+			////if (EchoDistance[Side ? 0:4] > EchoDistance[Side ? 4:0])
+				////Robot.cw(FastSpeed);
+			////else if (EchoDistance[Face ? 5:2] > EchoDistance[Side ? 2:5])
+				////Robot.cw(FastSpeed);
+			////else
+				////StateMachine++;
+		////}
+		//
+		//// Making sure both sides are parallel
+		//if (StateMachine == 0)
+		//{
+			//// How far we are away is equal to difference b/w the XTarget and the average of the 2 side sensors
+			//WError = XCurrent1 - XCurrent2;
+			//// Decide decide whether we need to move away or towards the target
+			//if (WError > 0)
+				//DirectionFlag = 1;
+			//else
+				//DirectionFlag = 0;
+			//// Convert cm to counts
+			//XError = abs(WError) * DEGREES_TO_MOVE;
+			//StateMachine++;
+		//}
+		//else if (StateMachine == 1)
+		//{
+			//// if we need to move toward the target
+			//if (TargetFlag == 0)
+			//{
+				//// Move Right till the value of counts in XError is reached
+				//if (DirectionFlag == 1)
+					//TargetFlag = Robot.moveCCW(&WError);
+				//else
+					//TargetFlag = Robot.moveCW(&WError);
+			//}
+			//else 
+			//{
+				//TargetFlag = 0;
+				//Robot.stop();
+				//delay(STOP_DELAY);
+			//}
+			//
+			//// If the difference of the 2 right sensors are greater than the tolerance
+			//if ( ((XCurrent1 - XCurrent2) < PARALLEL_TOLERANCE) && ((XCurrent1 - XCurrent2) > -PARALLEL_TOLERANCE) )
+			//{
+				////Robot.stop();
+				//StateMachine++;
+				//
+				//// How far we are away is equal to difference b/w the XTarget and the average of the 2 side sensors
+				//XError = XTarget - ((XCurrent1 + XCurrent2) >> 1);
+				//// Decide decide whether we need to move away or towards the target
+				//if (XError > 0)
+					//DirectionFlag = 0;
+				//else
+					//DirectionFlag = 1;
+				//// Convert cm to counts
+				//XError = abs(XError) * X_COUNTS_PER_CM;
+			//}
+		//}
+		//
+		//// Making sure the robot reaches the x-axis target
+		//else if (StateMachine == 2)
+		//{
+			//// If the Front right sensor is greater than the X-Target
+			//// We are only using one of the sensor to check for distance
+//
+			//// if we need to move toward the target
+			//if (TargetFlag == 0){
+				//// Move Right till the value of counts in XError is reached
+				//if (DirectionFlag == 1)
+					//TargetFlag = Robot.moveLeft(&XError);
+				//else 
+					//TargetFlag = Robot.moveRight(&XError);
+			//}
+			//else {
+				//TargetFlag = 0;
+				//Robot.stop();
+				//delay(STOP_DELAY);
+			//}
+			//// Determine if the robot is at the x-axis target && is parallel to the wall
+			//if ((XCurrent1 >= (XTarget - SENSOR_TOLERANCE)) && (XCurrent1 <= (XTarget + SENSOR_TOLERANCE))
+			//&&
+			//(XCurrent2 >= (XTarget - SENSOR_TOLERANCE)) && (XCurrent2 <= (XTarget + SENSOR_TOLERANCE)))
+			//{
+				////stop the robot and go to the next state
+				////Robot.stop();
+				//StateMachine++;
+				//// How far we are away is equal to difference b/w the XTarget and the average of the 2 side sensors
+				//YError = YTarget - YCurrent;
+				//// Decide decide whether we need to move away or towards the target
+				//if (YError > 0)
+					//DirectionFlag = 0;
+				//else
+					//DirectionFlag = 1;
+				//// Convert cm to counts
+				//YError = abs(YError) * Y_COUNTS_PER_CM;
+			//}
+			//// else the robot needs to go back to state 0 and try to get it self parallel to the wall
+			//else
+			//{
+				//StateMachine = 0;
+			//}
+		//}
+		//
+		//// Making sure the robot reaches the y-axis
+		//else if (StateMachine == 3)
+		//{
+			//// Making sure the back sensor is outside the target value
+//
+			//// if we need to move toward the target
+			//if (TargetFlag == 0){
+				//// Move Right till the value of counts in XError is reached
+				//if (DirectionFlag == 1)
+				//TargetFlag = Robot.moveBackward(&YError);
+				//else
+				//TargetFlag = Robot.moveForward(&YError);
+			//}
+			//else {
+				//TargetFlag = 0;
+				//Robot.stop();
+				//delay(STOP_DELAY);
+			//}
+//
+			//// Determining if the robot is (parallel to the wall) && (at the x-axis target) && (at the y-axis target)
+			//if (
+			//(XCurrent1 >= (XTarget - SENSOR_TOLERANCE)) &&
+			//(XCurrent1 <= (XTarget + SENSOR_TOLERANCE)) &&
+			//(XCurrent2 >= (XTarget - SENSOR_TOLERANCE)) &&
+			//(XCurrent2 <= (XTarget + SENSOR_TOLERANCE)) &&
+			//(YCurrent >= (XTarget - SENSOR_TOLERANCE)) &&
+			//(YCurrent <= (XTarget + SENSOR_TOLERANCE))   )
+			//{
+				////stop the robot and go to the next state
+				//Robot.stop();
+					//
+				///*************************
+				//*
+				//* Need to change back to next state
+				//*
+				//************************/
+				//StateMachine = 0;
+				//CheckPointFlag = 1;
+			//}
+			//// else the robot needs to go back to state 0 and try to get it self parallel to the wall
+			//else
+			//{
+				//StateMachine = 0;
+			//}
+		//}
+	//}
+//}
