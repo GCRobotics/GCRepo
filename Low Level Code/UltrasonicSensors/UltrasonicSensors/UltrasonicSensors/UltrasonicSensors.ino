@@ -48,9 +48,11 @@ void setup()
 	// Attach int.0 interrupt at pin 2
 	attachInterrupt(0,ultraInterrupt,CHANGE);
 	Ultra.initialize();
+	pinMode(13,OUTPUT);
+	digitalWrite(13, LOW);
 	//ForwardTarget = 305;
 	XTarget = 1124;
-	YTarget = 966;
+	YTarget = 1957;
 	WTarget = 2248;
 	//Ultra.Select = 0;
 
@@ -100,15 +102,31 @@ void loop()
 	//int temp = StateMachine;
 	// Code for the break message:
 	// {Ultra.EchoDistance[0]},{Ultra.EchoDistance[1]}, {Ultra.EchoDistance[2]},{Ultra.EchoDistance[3]},{Ultra.EchoDistance[4]},{Ultra.EchoDistance[5]}
-	Ultra.spinOnce(FRONT);
-	//switch (StateMachine)
-	//{
-		//case 0:
-		//Ultra.checkPoint(BACK,30,30);
-		//if (Ultra.CheckPointFlag == 1){
-		//StateMachine++;}
-		//break;
-	//}
+	//Ultra.spinOnce(BACK);
+	switch (StateMachine)
+	{
+		case 0:
+			Ultra.checkPoint(BACK,30,30);
+			if (Ultra.CheckPointFlag == 1){
+				StateMachine++;
+				delay(20);
+			}
+			break;
+		case 1:
+			if (TargetFlag == 0){
+				TargetFlag = RobotMove.moveForward(&YTarget);
+			}
+			if (TargetFlag == 1){
+				TargetFlag = 0;
+				StateMachine++;
+				delay(20);
+			}
+			break;
+		default:
+			RobotMove.stop();
+			delay(40);
+			break;
+	}
 	
 	
 }

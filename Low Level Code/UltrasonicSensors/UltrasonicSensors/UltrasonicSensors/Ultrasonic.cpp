@@ -152,6 +152,7 @@ void Ultrasonic::spinOnce(char Face)
 					if ((Temp >= 0) && (Temp <= MAX_DISTANCE))
 						EchoDistance[2] = Temp;
 					Select = 0;
+					FullSet++;
 					break;
 				case 8:
 					if ((Temp >= 0) && (Temp <= MAX_DISTANCE))
@@ -368,12 +369,11 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 		PreviousCheckpointTime = millis();
 		CheckPointFlag = 0;
 		// If we have finally collect the first set of the ultrasonic data
-		if (FullSet >= 4)
+		int XCurrent1 = EchoDistance[0];
+		int XCurrent2 = EchoDistance[1];
+		int YCurrent  = EchoDistance[Face ? 3:2];
+		if ((XCurrent1 != 0) && (XCurrent2 != 0) && (YCurrent != 0))
 		{
-			int XCurrent1 = EchoDistance[0];
-			int XCurrent2 = EchoDistance[1];
-			int YCurrent  = EchoDistance[Face ? 3:2];
-		
 			// Making sure both sides are parallel
 			if (StateMachine == 0)
 			{
@@ -497,14 +497,15 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 							PreviousMotorTime = millis();
 							//stop the robot and go to the next state
 							Robot.stop();
-							delay(3000);
+
+							digitalWrite(13,HIGH);
 					
 							/*************************
 							*
 							* Need to change back to next state
 							*
 							************************/
-							StateMachine = 0;
+							StateMachine ++;
 							CheckPointFlag = 1;
 						}
 					}
