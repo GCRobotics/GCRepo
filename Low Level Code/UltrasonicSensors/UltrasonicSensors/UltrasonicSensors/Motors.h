@@ -24,7 +24,7 @@
 #define Forward      0x00
 #define Backward     0x01
 
-#define SlowSpeed    14
+#define SlowSpeed    20
 #define MediumSpeed  50
 #define FastSpeed    70
 #define Stop         00

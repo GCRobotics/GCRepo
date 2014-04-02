@@ -18,8 +18,8 @@
 #define SENSOR_RIGHT_1		0
 #define SENSOR_RIGHT_2		1
 #define SENSOR_BACK_1		1
-#define SENSOR_TOLERANCE	2
-#define PARALLEL_TOLERANCE  2 
+#define Y_TOLERANCE			2
+#define X_TOLERANCE			1
 #define MAX_DISTANCE		244   //244 cm = 8 feet
 
 #define LEFT	0
@@ -30,12 +30,12 @@
 #define NEAR	1
 #define FAR		0
 
-#define X_OFFSET 15
-#define Y_OFFSET 5
+#define X_OFFSET 14
+#define Y_OFFSET 14
 #define STOP_DELAY 30
 #define SPIN_PERIOD 1
-#define CHECKPOINT_PERIOD 3
-#define MOTOR_PERIOD 10
+#define CHECKPOINT_PERIOD 10
+#define MOTOR_PERIOD 30
 
 
 /*******************************************************************
@@ -91,6 +91,7 @@ class Ultrasonic
 	void forward();
 	void turn90Cw();
 	void stop();
+	void encoderClear();
 
 	private:
 	Ultrasonic( const Ultrasonic &c );

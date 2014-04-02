@@ -359,6 +359,9 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 {
 	static unsigned long PreviousCheckpointTime = 0;
 	static unsigned long PreviousMotorTime = 0;
+	static int XParallelFlag = 0;
+	static int XAtTargetFlag = 0;
+	static int YAtTargetFlag = 0;
 	// Acquire new data
 	spinOnce(Face);
 	
@@ -369,16 +372,22 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 		PreviousCheckpointTime = millis();
 		CheckPointFlag = 0;
 		// If we have finally collect the first set of the ultrasonic data
-		int XCurrent1 = EchoDistance[0];
-		int XCurrent2 = EchoDistance[1];
-		int YCurrent  = EchoDistance[Face ? 3:2];
-		if ((XCurrent1 != 0) && (XCurrent2 != 0) && (YCurrent != 0))
+		int XCurrent1 = EchoDistance[0] + X_OFFSET;
+		int XCurrent2 = EchoDistance[1] + X_OFFSET;
+		int YCurrent  = EchoDistance[Face ? 3:2] + Y_OFFSET;
+		//{XCurrent1},{XCurrent2},{YCurrent},{StateMachine},{XTarget}, {YTarget}
+		if ((XCurrent1 != X_OFFSET) && (XCurrent2 != X_OFFSET) && (YCurrent != Y_OFFSET))
 		{
+			XParallelFlag = ((XCurrent1 - XCurrent2) <= X_TOLERANCE) && ((XCurrent1 - XCurrent2) >= -X_TOLERANCE);
+			XAtTargetFlag = (XCurrent1 >= (XTarget - X_TOLERANCE)) && (XCurrent1 <= (XTarget + X_TOLERANCE));
+			YAtTargetFlag = (YCurrent >= (YTarget - Y_TOLERANCE)) && (YCurrent <= (YTarget + Y_TOLERANCE));
+			
 			// Making sure both sides are parallel
 			if (StateMachine == 0)
 			{
 				// If the difference of the 2 right sensors are greater than the tolerance
-				if ( ((XCurrent1 - XCurrent2) > PARALLEL_TOLERANCE) || ((XCurrent1 - XCurrent2) < -PARALLEL_TOLERANCE) )
+				//if ( ((XCurrent1 - XCurrent2) > X_TOLERANCE) || ((XCurrent1 - XCurrent2) < -X_TOLERANCE) )
+				if (!XParallelFlag)
 				{
 					if ((millis() - PreviousMotorTime) >= MOTOR_PERIOD)
 					{
@@ -410,7 +419,7 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 			{
 				// If the Front right sensor is greater than the X-Target
 				// We are only using one of the sensor to check for distance
-				if ((XCurrent1 < (XTarget - SENSOR_TOLERANCE)) || (XCurrent1 > (XTarget + SENSOR_TOLERANCE)))
+				if ((XCurrent1 < (XTarget - X_TOLERANCE)) || (XCurrent1 > (XTarget + X_TOLERANCE)))
 				{
 					if ((millis() - PreviousMotorTime) >= MOTOR_PERIOD)
 					{
@@ -422,7 +431,7 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 						}
 						else 
 						{
-							if (XCurrent1 < (XTarget - SENSOR_TOLERANCE))
+							if (XCurrent1 < (XTarget - X_TOLERANCE))
 							{
 								Robot.left(SlowSpeed);
 							}
@@ -438,9 +447,10 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 				else
 				{
 					// Determine if the robot is at the x-axis target && is parallel to the wall
-					if ((XCurrent1 >= (XTarget - SENSOR_TOLERANCE)) && (XCurrent1 <= (XTarget + SENSOR_TOLERANCE))
-																	&&
-						(XCurrent2 >= (XTarget - SENSOR_TOLERANCE)) && (XCurrent2 <= (XTarget + SENSOR_TOLERANCE)))
+					//if ((XCurrent1 >= (XTarget - X_TOLERANCE)) && (XCurrent1 <= (XTarget + X_TOLERANCE))
+																	//&&
+						//(XCurrent2 >= (XTarget - X_TOLERANCE)) && (XCurrent2 <= (XTarget + X_TOLERANCE)))
+					if ( XParallelFlag && XAtTargetFlag)
 					{
 						if ((millis() - PreviousMotorTime) >= MOTOR_PERIOD)
 						{
@@ -464,7 +474,7 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 			else if (StateMachine == 2)
 			{
 				// Making sure the back sensor is outside the target value
-				if ((YCurrent < (YTarget - SENSOR_TOLERANCE)) || (YCurrent > (YTarget + SENSOR_TOLERANCE)))
+				if ((YCurrent < (YTarget - Y_TOLERANCE)) || (YCurrent > (YTarget + Y_TOLERANCE)))
 				{
 					if ((millis() - PreviousMotorTime) >= MOTOR_PERIOD)
 					{
@@ -472,7 +482,7 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 						if (Face == BACK)
 						{
 							// Deciding if the robot needs to move forward or backward
-							if (YCurrent < (YTarget - SENSOR_TOLERANCE))
+							if (YCurrent < (YTarget - Y_TOLERANCE))
 							{
 								Robot.forward(SlowSpeed);
 							}
@@ -483,7 +493,7 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 						}
 						else {
 							// Deciding if the robot needs to move forward or backward
-							if (YCurrent < (YTarget - SENSOR_TOLERANCE))
+							if (YCurrent < (YTarget - Y_TOLERANCE))
 							{
 								Robot.backward(SlowSpeed);
 							}
@@ -499,27 +509,29 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 				else
 				{
 					// Determining if the robot is (parallel to the wall) && (at the x-axis target) && (at the y-axis target)
-					if (
-					(XCurrent1 >= (XTarget - SENSOR_TOLERANCE)) &&
-					(XCurrent1 <= (XTarget + SENSOR_TOLERANCE)) &&
-					(XCurrent2 >= (XTarget - SENSOR_TOLERANCE)) &&
-					(XCurrent2 <= (XTarget + SENSOR_TOLERANCE)) &&
-					(YCurrent >= (XTarget - SENSOR_TOLERANCE)) &&
-					(YCurrent <= (XTarget + SENSOR_TOLERANCE))   )
+					//if (
+					//(XCurrent1 >= (XTarget - X_TOLERANCE)) &&
+					//(XCurrent1 <= (XTarget + X_TOLERANCE)) &&
+					//(XCurrent2 >= (XTarget - X_TOLERANCE)) &&
+					//(XCurrent2 <= (XTarget + X_TOLERANCE)) &&
+					//(YCurrent >= (XTarget - X_TOLERANCE)) &&
+					//(YCurrent <= (XTarget + X_TOLERANCE))   )
+					if (XAtTargetFlag && XParallelFlag & YAtTargetFlag)
 					{
-						if ((millis() - PreviousMotorTime) >= MOTOR_PERIOD)
-						{
+						//if ((millis() - PreviousMotorTime) >= MOTOR_PERIOD)
+						//{
 							PreviousMotorTime = millis();
 							//stop the robot and go to the next state
 							Robot.stop();
-
 							digitalWrite(13,HIGH);
+							delay(200);
+							encoderClear();
 							XCurrent1 = 0;
 							XCurrent2 = 0;
 							YCurrent = 0;
 							StateMachine ++;
 							CheckPointFlag = 1;
-						}
+						//}
 					}
 					// else the robot needs to go back to state 0 and try to get it self parallel to the wall
 					else
@@ -534,4 +546,13 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 			}
 		}
 	}
+}
+
+void Ultrasonic::encoderClear()
+{
+	int Temp1, Temp2;
+	Robot.ReadOne(0x02,&Temp1,&Temp2);
+	Robot.ReadOne(0x04,&Temp1,&Temp2);
+	Robot.ReadOne(0x06,&Temp1,&Temp2);
+	Robot.ReadOne(0x08,&Temp1,&Temp2);
 }
