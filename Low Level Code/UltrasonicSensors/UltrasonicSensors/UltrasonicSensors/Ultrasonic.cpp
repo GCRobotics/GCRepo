@@ -151,15 +151,13 @@ void Ultrasonic::spinOnce(char Face)
 				case 6:
 					if ((Temp >= 0) && (Temp <= MAX_DISTANCE))
 						EchoDistance[2] = Temp;
+					Select = 0;
 					break;
 				case 8:
 					if ((Temp >= 0) && (Temp <= MAX_DISTANCE))
 						EchoDistance[3] = Temp;
 					Select = 0;
 					FullSet++;
-					break;
-				default:
-					delay(1);
 					break;
 			}
 			
@@ -408,30 +406,30 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 			}
 		
 			// Making sure the robot reaches the x-axis target
-			if (StateMachine == 1)
+			else if (StateMachine == 1)
 			{
 				// If the Front right sensor is greater than the X-Target
 				// We are only using one of the sensor to check for distance
 				if ((XCurrent1 < (XTarget - SENSOR_TOLERANCE)) || (XCurrent1 > (XTarget + SENSOR_TOLERANCE)))
 				{
-				
-				/*************************
-				*
-				* This is not needed on the real robot
-				* We need it right now because strafing is not really "strafing"
-				*
-				************************/
 					if ((millis() - PreviousMotorTime) >= MOTOR_PERIOD)
 					{
 						PreviousMotorTime = millis();
 						// Determining if the robot needs to strafe left or right
-						if (XCurrent1 < (XTarget - SENSOR_TOLERANCE))
-						{
-							Robot.left(SlowSpeed);
-						}
-						else
+						if (XCurrent1 < 10) 
 						{
 							Robot.right(SlowSpeed);
+						}
+						else 
+						{
+							if (XCurrent1 < (XTarget - SENSOR_TOLERANCE))
+							{
+								Robot.left(SlowSpeed);
+							}
+							else
+							{
+								Robot.right(SlowSpeed);
+							}
 						}
 					}
 				}
@@ -441,14 +439,12 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 				{
 					// Determine if the robot is at the x-axis target && is parallel to the wall
 					if ((XCurrent1 >= (XTarget - SENSOR_TOLERANCE)) && (XCurrent1 <= (XTarget + SENSOR_TOLERANCE))
-					&&
-					(XCurrent2 >= (XTarget - SENSOR_TOLERANCE)) && (XCurrent2 <= (XTarget + SENSOR_TOLERANCE)))
+																	&&
+						(XCurrent2 >= (XTarget - SENSOR_TOLERANCE)) && (XCurrent2 <= (XTarget + SENSOR_TOLERANCE)))
 					{
 						if ((millis() - PreviousMotorTime) >= MOTOR_PERIOD)
 						{
 							PreviousMotorTime = millis();
-							//stop the robot and go to the next state
-							//Robot.stop();
 							StateMachine++;
 						}
 					}
@@ -465,7 +461,7 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 			}
 		
 			// Making sure the robot reaches the y-axis
-			if (StateMachine == 2)
+			else if (StateMachine == 2)
 			{
 				// Making sure the back sensor is outside the target value
 				if ((YCurrent < (YTarget - SENSOR_TOLERANCE)) || (YCurrent > (YTarget + SENSOR_TOLERANCE)))

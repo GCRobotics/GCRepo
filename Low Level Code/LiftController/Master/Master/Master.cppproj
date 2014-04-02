@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>6.1</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.CPP</ToolchainName>
-    <ProjectGuid>{bcb07b6d-f8d1-4cbc-b34e-d46d5d26bd7d}</ProjectGuid>
+    <ProjectGuid>{d99a620a-df1b-4209-9a62-67ea1c0f1566}</ProjectGuid>
     <avrdevice>atmega328p</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>LiftSlave</AssemblyName>
-    <Name>LiftSlave</Name>
-    <RootNamespace>LiftSlave</RootNamespace>
+    <AssemblyName>Master</AssemblyName>
+    <Name>Master</Name>
+    <RootNamespace>Master</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
@@ -64,8 +64,6 @@
           <ListValues>
             <Value>C:\Program Files (x86)\Arduino\hardware\arduino\cores\arduino</Value>
             <Value>C:\Program Files (x86)\Arduino\hardware\arduino\variants\standard</Value>
-            <Value>C:\Program Files (x86)\Arduino\libraries\Wire</Value>
-            <Value>C:\Program Files (x86)\Arduino\libraries\Wire\utility</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\include\</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\</Value>
@@ -96,8 +94,6 @@
           <ListValues>
             <Value>C:\Program Files (x86)\Arduino\hardware\arduino\cores\arduino</Value>
             <Value>C:\Program Files (x86)\Arduino\hardware\arduino\variants\standard</Value>
-            <Value>C:\Program Files (x86)\Arduino\libraries\Wire</Value>
-            <Value>C:\Program Files (x86)\Arduino\libraries\Wire\utility</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\include\</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\</Value>
@@ -118,7 +114,7 @@
     </ToolchainSettings>
     <VisualMicroSettings>
       <VisualMicroSettings xmlns="">
-        <VM.DebugExt.AGaugeExample.Enabled>1</VM.DebugExt.AGaugeExample.Enabled>
+        <arduino.upload.port>COM4</arduino.upload.port>
       </VisualMicroSettings>
     </VisualMicroSettings>
   </PropertyGroup>
@@ -147,8 +143,6 @@
           <ListValues>
             <Value>C:\Program Files (x86)\Arduino\hardware\arduino\cores\arduino</Value>
             <Value>C:\Program Files (x86)\Arduino\hardware\arduino\variants\standard</Value>
-            <Value>C:\Program Files (x86)\Arduino\libraries\Wire</Value>
-            <Value>C:\Program Files (x86)\Arduino\libraries\Wire\utility</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\include\</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\</Value>
@@ -179,8 +173,6 @@
           <ListValues>
             <Value>C:\Program Files (x86)\Arduino\hardware\arduino\cores\arduino</Value>
             <Value>C:\Program Files (x86)\Arduino\hardware\arduino\variants\standard</Value>
-            <Value>C:\Program Files (x86)\Arduino\libraries\Wire</Value>
-            <Value>C:\Program Files (x86)\Arduino\libraries\Wire\utility</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\include\</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\include\avr\</Value>
             <Value>c:\program files (x86)\arduino\hardware\tools\avr\avr\</Value>
@@ -201,33 +193,21 @@
     </ToolchainSettings>
     <VisualMicroSettings>
       <VisualMicroSettings xmlns="">
-        <VM.DebugExt.AGaugeExample.Enabled>1</VM.DebugExt.AGaugeExample.Enabled>
+        <arduino.upload.port>COM4</arduino.upload.port>
       </VisualMicroSettings>
     </VisualMicroSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Adafruit_MotorShield.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Adafruit_MotorShield.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Adafruit_PWMServoDriver.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Adafruit_PWMServoDriver.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Lift.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Lift.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="LiftSlave.ino">
+    <Compile Include="Master.ino">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Visual Micro\.LiftSlave.vsarduino.h">
+    <Compile Include="Visual Micro\.Master.vsarduino.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

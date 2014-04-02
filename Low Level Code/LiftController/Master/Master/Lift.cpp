@@ -1,54 +1,29 @@
-#define LiftBusy    12    // Busy flag.      0 = ready , 1 = busy
-#define LiftData    11    // Data flag.      0 = do nothing, 1 = move to next state
-#define LiftLevel   10    // Tells which level the plate is located on
-// 0 = bottom shelf
-// 1 = top shelf
+/* 
+* Lift.cpp
+*
+* Created: 3/31/2014 12:27:31 AM
+* Author: Quang
+*/
 
 
+#include "Lift.h"
+#include <Arduino.h>
 
 
-// Initialize functions for the master
-void liftMasterInitialize();
-
-void liftMasterSetLevel(int Shelf);
-
-// This function is called to indicate that we want to request the slave to change state
-void liftMasterRequestStateChange();
-
-// This function is the heart of the library. It handles the communication between the master and the slave
-void liftMasterSpinOnce();
-
-// Initialize functions for the master
-void liftSlaveInitialize();
-
-// The slave will pull the Busy line HIGH to indicate that it is busy
-void liftSlaveSetBusy();
-
-// The slave will pull the Busy line LOW to indicate that it is not busy
-void liftSlaveSetReady();
-
-// The slave will read the Level line and return the result
-int  liftSlaveGetLevel();
-
-// The Slave will read the Data line and return whether or not the master is telling it to change state
-int  liftSlaveStateChangeCheck();
-
-
-
-int Change;            // 0 = don't need to change state, 1 = need to change state
-int SetFlag;           // Just set flag
-
+// default constructor
+Lift::Lift()
+{
+} //Lift
 
 /*******************************************************************
 *
 *				Functions for the master
 *
 *******************************************************************/
-void liftMasterInitialize()
+void Lift::MasterInitialize()
 {
 	// initialize all the variables
 	Change = 0;
-	SetFlag = 0;
 
 	// Set all the pins to the proper mode
 	pinMode(LiftBusy, INPUT);           // Busy pin = input
@@ -60,7 +35,7 @@ void liftMasterInitialize()
 	digitalWrite(LiftLevel, 0);
 }
 
-void liftMasterSetLevel(int Shelf)
+void Lift::MasterSetLevel(int Shelf)
 {
 	// Write to the Level line the value of shelf
 	// 0 = lower shelf, 1 = higher shelf
@@ -71,29 +46,40 @@ void liftMasterSetLevel(int Shelf)
 // let the master decide whether it needs to request a statechange for the slave or not.
 // Look at the conditional statement of liftMasterSpinOnce() to better understand the function
 // of the variable Change.
-void liftMasterRequestStateChange()
+void Lift::MasterRequestStateChange()
 {
     Change = 1;
 }
 
-void liftMasterSpinOnce()
+// Return 0 - Request for state change wasn't complete
+// Return 1 - Request for state change was complete
+// Return 2 - The slave may or may not be free but we don't really care.
+int Lift::MasterSpinOnce()
 {
+	static int Temp = 0;
+	static int SetFlag = 0;
+	Temp = digitalRead(LiftBusy);
     // If the slave is not busy and it need to progress to the next state of the lift
     if ((digitalRead(LiftBusy) == 0) && (Change == 1) && (SetFlag == 0))
     {
-        digitalWrite(LiftData, 1);
-		// Set flag to indicate that we just set the data line
-        SetFlag = 1;
-    }
-	
+	    digitalWrite(LiftData, 1);
+	    // Set flag to indicate that we just set the data line
+	    SetFlag = 1;
+		return 0;
+    }    
     // If the slave became busy because it register our request for a change in state
-    else if ((digitalRead(LiftBusy) == 1) && (SetFlag == 1)){
-        digitalWrite(LiftData, 0);
-		// Clear all the flags since we've just successfully requested a statechange for the slave
-        SetFlag = 0;
-        Change = 0;
-
+    else if ((digitalRead(LiftBusy) == 1) && (Change == 1) && (SetFlag == 1)){
+	    digitalWrite(LiftData, 0);
+	    // Clear all the flags since we've just successfully requested a statechange for the slave
+	    SetFlag = 0;
+	    Change = 0;
+		return 1;
     }
+	else 
+	{
+		delay(1);
+		return 0;
+	}
 }
 
 /***********************************************
@@ -102,7 +88,7 @@ void liftMasterSpinOnce()
  *
  ***********************************************/
 
-void liftSlaveInitialize()
+void Lift::SlaveInitialize()
 {
     // Set all the pins to the proper mode
     pinMode(LiftBusy, OUTPUT);
@@ -114,25 +100,25 @@ void liftSlaveInitialize()
 }
 
 
-void liftSlaveSetBusy()
+void Lift::SlaveSetBusy()
 {
 	// Slave set the Busy line to busy
 	digitalWrite(LiftBusy, HIGH);
 }
 
-void liftSlaveSetReady()
+void Lift::SlaveSetReady()
 {
 	// Slave set the busy line to Ready
 	digitalWrite(LiftBusy, LOW);
 }
 
-int  liftSlaveGetLevel()
+int  Lift::SlaveGetLevel()
 {
 	// Return the value of the Level line
 	return digitalRead(LiftLevel);
 }
 
-int  liftSlaveStateChangeCheck()
+int  Lift::SlaveStateChangeCheck()
 {
 	// Return the value of the Data line
 	return digitalRead(LiftData);
