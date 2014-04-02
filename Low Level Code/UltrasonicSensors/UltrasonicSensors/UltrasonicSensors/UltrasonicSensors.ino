@@ -109,6 +109,7 @@ void loop()
 			Ultra.checkPoint(BACK,30,30);
 			if (Ultra.CheckPointFlag == 1){
 				StateMachine++;
+				Ultra.StateMachine = 0;
 				delay(20);
 			}
 			break;
@@ -118,6 +119,15 @@ void loop()
 			}
 			if (TargetFlag == 1){
 				TargetFlag = 0;
+				StateMachine++;
+				RobotMove.stop();
+				delay(200);
+				digitalWrite(13, LOW);
+			}
+			break;
+		case 2:
+			Ultra.checkPoint(FRONT,40,40);
+			if (Ultra.CheckPointFlag == 1){
 				StateMachine++;
 				delay(20);
 			}

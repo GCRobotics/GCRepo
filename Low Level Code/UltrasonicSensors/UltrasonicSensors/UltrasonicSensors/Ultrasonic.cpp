@@ -469,16 +469,31 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 					if ((millis() - PreviousMotorTime) >= MOTOR_PERIOD)
 					{
 						PreviousMotorTime = millis();
-						// Deciding if the robot needs to move forward or backward
-						if (YCurrent < (YTarget - SENSOR_TOLERANCE))
+						if (Face == BACK)
 						{
+							// Deciding if the robot needs to move forward or backward
+							if (YCurrent < (YTarget - SENSOR_TOLERANCE))
+							{
 								Robot.forward(SlowSpeed);
-						}
-						else
-						{
+							}
+							else
+							{
 								Robot.backward(SlowSpeed);
+							}
 						}
+						else {
+							// Deciding if the robot needs to move forward or backward
+							if (YCurrent < (YTarget - SENSOR_TOLERANCE))
+							{
+								Robot.backward(SlowSpeed);
+							}
+							else
+							{
+								Robot.forward(SlowSpeed);
+							}
+						}	
 					}
+					
 				}
 				// The robot is at the y-axis target
 				else
@@ -499,12 +514,9 @@ void Ultrasonic::checkPoint(char Face, int XTarget, int YTarget)
 							Robot.stop();
 
 							digitalWrite(13,HIGH);
-					
-							/*************************
-							*
-							* Need to change back to next state
-							*
-							************************/
+							XCurrent1 = 0;
+							XCurrent2 = 0;
+							YCurrent = 0;
 							StateMachine ++;
 							CheckPointFlag = 1;
 						}

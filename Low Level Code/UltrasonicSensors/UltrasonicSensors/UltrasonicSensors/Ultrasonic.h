@@ -18,8 +18,8 @@
 #define SENSOR_RIGHT_1		0
 #define SENSOR_RIGHT_2		1
 #define SENSOR_BACK_1		1
-#define SENSOR_TOLERANCE	1
-#define PARALLEL_TOLERANCE  1 
+#define SENSOR_TOLERANCE	2
+#define PARALLEL_TOLERANCE  2 
 #define MAX_DISTANCE		244   //244 cm = 8 feet
 
 #define LEFT	0
@@ -33,9 +33,9 @@
 #define X_OFFSET 15
 #define Y_OFFSET 5
 #define STOP_DELAY 30
-#define SPIN_PERIOD 2
-#define CHECKPOINT_PERIOD 10
-#define MOTOR_PERIOD 40
+#define SPIN_PERIOD 1
+#define CHECKPOINT_PERIOD 3
+#define MOTOR_PERIOD 10
 
 
 /*******************************************************************
