@@ -24,10 +24,6 @@ extern "C" void __cxa_pure_virtual() {;}
 
 #include "C:\Program Files (x86)\Arduino\hardware\arduino\variants\standard\pins_arduino.h" 
 #include "C:\Program Files (x86)\Arduino\hardware\arduino\cores\arduino\arduino.h"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\LiftSlave.ino"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Adafruit_MotorShield.cpp"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Adafruit_MotorShield.h"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Adafruit_PWMServoDriver.cpp"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Adafruit_PWMServoDriver.h"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Lift.cpp"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Lift.h"
+#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Master\Master\Master.ino"
+#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Master\Master\Lift.cpp"
+#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Master\Master\Lift.h"

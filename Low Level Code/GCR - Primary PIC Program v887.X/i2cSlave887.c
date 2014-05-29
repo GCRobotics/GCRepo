@@ -117,7 +117,7 @@ void i2cIsrHandler(){
         }
     }else
 	{
-            ;
+            PORTD   = 0xFF;
 	}
 
     SSPIF = 0;

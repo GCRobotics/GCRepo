@@ -11,7 +11,6 @@
 
 #define __AVR_ATmega328p__
 #define __AVR_ATmega328P__
-#define _VMDEBUG 1
 #define ARDUINO 101
 #define ARDUINO_MAIN
 #define F_CPU 16000000L
@@ -24,10 +23,10 @@ extern "C" void __cxa_pure_virtual() {;}
 
 #include "C:\Program Files (x86)\Arduino\hardware\arduino\variants\standard\pins_arduino.h" 
 #include "C:\Program Files (x86)\Arduino\hardware\arduino\cores\arduino\arduino.h"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\LiftSlave.ino"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Adafruit_MotorShield.cpp"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Adafruit_MotorShield.h"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Adafruit_PWMServoDriver.cpp"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Adafruit_PWMServoDriver.h"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Lift.cpp"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\LiftController\Slave\LiftSlave\LiftSlave\Lift.h"
+#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\Demonstration\Demonstration\Demonstration.ino"
+#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\Demonstration\Demonstration\Lift.cpp"
+#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\Demonstration\Demonstration\Lift.h"
+#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\Demonstration\Demonstration\Motors.cpp"
+#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\Demonstration\Demonstration\Motors.h"
+#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\Demonstration\Demonstration\Ultrasonic.cpp"
+#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\Demonstration\Demonstration\Ultrasonic.h"

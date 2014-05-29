@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>6.1</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.CPP</ToolchainName>
-    <ProjectGuid>{bcb07b6d-f8d1-4cbc-b34e-d46d5d26bd7d}</ProjectGuid>
+    <ProjectGuid>{de511b01-5530-4f2e-a793-d3975fb6c264}</ProjectGuid>
     <avrdevice>atmega328p</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>LiftSlave</AssemblyName>
-    <Name>LiftSlave</Name>
-    <RootNamespace>LiftSlave</RootNamespace>
+    <AssemblyName>Demonstration</AssemblyName>
+    <Name>Demonstration</Name>
+    <RootNamespace>Demonstration</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
@@ -52,7 +52,6 @@
           <ListValues>
             <Value>__AVR_ATmega328p__</Value>
             <Value>__AVR_ATmega328P__</Value>
-            <Value>_VMDEBUG=1</Value>
             <Value>ARDUINO=101</Value>
             <Value>ARDUINO_MAIN</Value>
             <Value>F_CPU=16000000L</Value>
@@ -84,7 +83,6 @@
           <ListValues>
             <Value>__AVR_ATmega328p__</Value>
             <Value>__AVR_ATmega328P__</Value>
-            <Value>_VMDEBUG=1</Value>
             <Value>ARDUINO=101</Value>
             <Value>ARDUINO_MAIN</Value>
             <Value>F_CPU=16000000L</Value>
@@ -116,13 +114,6 @@
         <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
       </AvrGccCpp>
     </ToolchainSettings>
-    <VisualMicroSettings>
-      <VisualMicroSettings>
-        <VM.DebugExt.AGaugeExample.Enabled>1</VM.DebugExt.AGaugeExample.Enabled>
-        <arduino.upload.port>COM4</arduino.upload.port>
-        <VM.DebugExt.AGaugeExample.Visible>0</VM.DebugExt.AGaugeExample.Visible>
-      </VisualMicroSettings>
-    </VisualMicroSettings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
@@ -137,7 +128,6 @@
           <ListValues>
             <Value>__AVR_ATmega328p__</Value>
             <Value>__AVR_ATmega328P__</Value>
-            <Value>_VMDEBUG=1</Value>
             <Value>ARDUINO=101</Value>
             <Value>ARDUINO_MAIN</Value>
             <Value>F_CPU=16000000L</Value>
@@ -169,7 +159,6 @@
           <ListValues>
             <Value>__AVR_ATmega328p__</Value>
             <Value>__AVR_ATmega328P__</Value>
-            <Value>_VMDEBUG=1</Value>
             <Value>ARDUINO=101</Value>
             <Value>ARDUINO_MAIN</Value>
             <Value>F_CPU=16000000L</Value>
@@ -201,25 +190,9 @@
         <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
       </AvrGccCpp>
     </ToolchainSettings>
-    <VisualMicroSettings>
-      <VisualMicroSettings>
-        <VM.DebugExt.AGaugeExample.Enabled>1</VM.DebugExt.AGaugeExample.Enabled>
-        <arduino.upload.port>COM4</arduino.upload.port>
-        <VM.DebugExt.AGaugeExample.Visible>0</VM.DebugExt.AGaugeExample.Visible>
-      </VisualMicroSettings>
-    </VisualMicroSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Adafruit_MotorShield.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Adafruit_MotorShield.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Adafruit_PWMServoDriver.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Adafruit_PWMServoDriver.h">
+    <Compile Include="Demonstration.ino">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Lift.cpp">
@@ -228,10 +201,19 @@
     <Compile Include="Lift.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="LiftSlave.ino">
+    <Compile Include="Motors.cpp">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Visual Micro\.LiftSlave.vsarduino.h">
+    <Compile Include="Motors.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Ultrasonic.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Ultrasonic.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Visual Micro\.Demonstration.vsarduino.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

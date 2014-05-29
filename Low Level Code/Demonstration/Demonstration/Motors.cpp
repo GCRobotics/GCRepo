@@ -187,7 +187,7 @@ int Motors::moveRight( int *Target)
 {
 	if (FirstTime != 1)
 	{
-		right(MediumSpeed);
+		right(SlowSpeed);
 		FirstTime = 1;
 	}
 	if ( (millis() - PreviousTime) >= SAMPLING_PERIOD)
@@ -210,7 +210,7 @@ int Motors::moveLeft( int *Target)
 {
 	if (FirstTime != 1)
 	{
-		left(MediumSpeed);
+		left(SlowSpeed);
 		FirstTime = 1;
 	}
 	if ( (millis() - PreviousTime) >= SAMPLING_PERIOD)
@@ -262,7 +262,7 @@ int Motors::moveCW( int *Target)
 {
 	if (FirstTime != 1)
 	{
-		cw(MediumSpeed);
+		cw(SlowSpeed);
 		FirstTime = 1;
 	}
 	if ( (millis() - PreviousTime) >= SAMPLING_PERIOD)
@@ -285,7 +285,7 @@ int Motors::moveCCW( int *Target)
 {
 	if (FirstTime != 1)
 	{
-		ccw(MediumSpeed);
+		ccw(SlowSpeed);
 		FirstTime = 1;
 	}
 	if ( (millis() - PreviousTime) >= SAMPLING_PERIOD)

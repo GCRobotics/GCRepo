@@ -169,8 +169,6 @@ int main()
     Initialise();                       // Function to do initial setup
     while(1)                            // Infinite loop
     {
-        PORTD = 0xff;                   // This is just to indicate that PIC is running
-                                            // this can be change for better use of debugging
         if (F.I2C == 1)                 // I2C message was received
         {
             // Perform some I2C operation
@@ -282,6 +280,7 @@ void Initialise()
     TRISB   = 0b11110111;
     PORTBbits.RB3 = FORWARD;    // default to forward
     TRISD   = 0;
+    PORTD   = 0;
     PORTCbits.RC1 = 0;
 }
 

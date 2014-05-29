@@ -8,40 +8,36 @@
 #include "Ultrasonic.h"
 #include <Wire.h>
 #include "Motors.h"
+#include "Lift.h"
 	
 	
 /********************************************************
 *          Constants for Ultrasonic Sensors
 *********************************************************/
-#define SENSOR_RIGHT_1 0
-#define SENSOR_RIGHT_2 1
-#define SENSOR_BACK_1  2
-#define SENSOR_TOLERANCE 5
-#define MAX_DISTANCE 200
-
-#define _A_ Ultra.EchoDistance[0]
-#define _B_ Ultra.EchoDistance[1]
-#define _C_ Ultra.EchoDistance[2]
-#define _D_ Ultra.EchoDistance[3]
-#define _E_ Ultra.EchoDistance[4]
-#define _F_ Ultra.EchoDistance[5]
 
 
 
-int StateMachine;        // This is a State Machine that tells the robot what it should do
-// with the ultrasonic data
-// 0 -> The robot is trying to make it self parallel to the wall by rotating CW/CCW
-// 1 -> The robot is trying to reach the x-axis target by strafing
-// 2 -> The robot is trying to reach the y-axis target by moving forward or backward
+
+
+
+
 
 // Target Variables
 int SensorTargetRight = 30, SensorTargetBack = 40;
+int StateMachine = 0;
+
+int YTarget = 0;
+int XTarget = 0;
+int WTarget = 0;
+int TargetFlag = 0;
+int LiftAck = 0;
 
 
 // Create instance of the class Ultrasonic
 Ultrasonic Ultra;
 // Create instance of the class Motors
-Motors Robot;
+Motors RobotMove;
+Lift Master;
 
 
 /*********************************************************
@@ -51,9 +47,24 @@ Motors Robot;
 **********************************************************/
 void setup()
 {
-	Ultra.initialize();
+	Wire.begin();
 	// Attach int.0 interrupt at pin 2
 	attachInterrupt(0,ultraInterrupt,CHANGE);
+	Ultra.initialize();
+	// initialize for master
+	Master.MasterInitialize();
+	Master.MasterSetLevel(1);
+	Master.MasterRequestStateChange();
+	pinMode(13,OUTPUT);
+	digitalWrite(13, LOW);
+	//ForwardTarget = 305;
+	//XTarget = 1124;
+	//YTarget = 1914;
+	//WTarget = 2362;
+	//Ultra.Select = 0;
+
+	delay(6000);
+	Master.MasterRequestStateChange();
 }
 
 /*********************************************************
@@ -62,119 +73,245 @@ void setup()
 *
 **********************************************************/
 void loop()
-{
-	int temp = StateMachine;
-	// Code for the break message:
-	// {Ultra.EchoDistance[0]},{Ultra.EchoDistance[1]}, {Ultra.EchoDistance[2]},{Ultra.EchoDistance[3]},{Ultra.EchoDistance[4]},{Ultra.EchoDistance[5]}
-	Ultra.spinOnce();
-	
-	// If we have finally collect the first set of the ultrasonic data
-	if (Ultra.FullSet == 1)
+{	
+ //Testing RobotMove routine
+ //move forward 1 foot and then turn 180*
+ 
+ /*
+	if (StateMachine == 0)
 	{
-		// All the conditional Statements goes in here.
-		// Making sure both sides are parallel
-		if (StateMachine == 0)
-		{
-			// If the difference of the 2 right sensors are greater than the tolerance
-			if ( ((_A_ - _B_) > SENSOR_TOLERANCE) || ((_A_ - _B_) < -SENSOR_TOLERANCE) )
-			{
-				// Determining if robot needs to rotate CW or CCW
-				if (_A_ > _B_)
-				{
-					Robot.cw(MediumSpeed);
-					delay(1);
-				}
-				else
-				{
-					Robot.ccw(MediumSpeed);
-					delay(1);
-				}
-			}
-			// Stop the robot and move to the next state if the robot parallel
-			else {
-				Robot.stop();
-				StateMachine++;
-			}
+		if (TargetFlag == 0){
+			TargetFlag = RobotMove.moveCCW(&WTarget);
 		}
-		
-		// Making sure the robot reaches the x-axis target
-		if (StateMachine == 1)
-		{
-			// If the Front right sensor is greater than the X-Target
-			// We are only using one of the sensor to check for distance
-			if ((_A_ < (SensorTargetRight - SENSOR_TOLERANCE)) || (_A_ > (SensorTargetRight + SENSOR_TOLERANCE)))
-			{
-				// Determining if the robot needs to strafe left or right
-				if (_A_ < (SensorTargetRight - SENSOR_TOLERANCE))
-				{
-					Robot.left(MediumSpeed);
-				}
-				else
-				{
-					Robot.right(MediumSpeed);
-				}
-			}
-			// The robot is at the x-axis target
-			else
-			{
-				// Determine if the robot is at the x-axis target && is parallel to the wall
-				if ((_A_ >= (SensorTargetRight - SENSOR_TOLERANCE)) && (_A_ <= (SensorTargetRight + SENSOR_TOLERANCE))
-																	&&
-				(_B_ >= (SensorTargetRight - SENSOR_TOLERANCE)) && (_B_ <= (SensorTargetRight + SENSOR_TOLERANCE)))
-				{
-					//stop the robot and go to the next state
-					Robot.stop();
-					StateMachine++;
-				}
-				// else the robot needs to go back to state 0 and try to get it self parallel to the wall
-				else
-				{
-					StateMachine--;
-				}
-			}
-		}
-		
-		// Making sure the robot reaches the y-axis
-		if (StateMachine == 2)
-		{
-			// Making sure the back sensor is outside the target value
-			if ((_C_ < (SensorTargetBack - SENSOR_TOLERANCE)) || (_C_ > (SensorTargetBack + SENSOR_TOLERANCE)))
-			{
-				// Deciding if the robot needs to move forward or backward
-				if (_C_ < (SensorTargetBack - SENSOR_TOLERANCE))
-				{
-					Robot.forward(MediumSpeed);
-				}
-				else
-				{
-					Robot.backward(MediumSpeed);
-				}
-			}
-			// The robot is at the y-axis target
-			else
-			{
-				// Determining if the robot is (parallel to the wall) && (at the x-axis target) && (at the y-axis target)
-				if (
-				(_A_ >= (SensorTargetRight - SENSOR_TOLERANCE)) &&
-				(_A_ <= (SensorTargetRight + SENSOR_TOLERANCE)) &&
-				(_B_ >= (SensorTargetRight - SENSOR_TOLERANCE)) &&
-				(_B_ <= (SensorTargetRight + SENSOR_TOLERANCE)) &&
-				(_C_ >= (SensorTargetRight - SENSOR_TOLERANCE)) &&
-				(_C_ <= (SensorTargetRight + SENSOR_TOLERANCE))   )
-				{
-					//stop the robot and go to the next state
-					Robot.stop();
-					StateMachine++;
-				}
-				// else the robot needs to go back to state 0 and try to get it self parallel to the wall
-				else
-				{
-					StateMachine = 0;
-				}
-			}
+		if (TargetFlag == 1){
+			TargetFlag = 0;
+			StateMachine++;
+			delay(20);
 		}
 	}
-	delay(10);
+	else
+	{
+		RobotMove.stop();
+		delay(300);
+	}
+ */
+ 
+ 
+// Working Statemachine
+	//int temp = StateMachine;
+	// Code for the break message:
+	// {Ultra.EchoDistance[0]},{Ultra.EchoDistance[1]}, {Ultra.EchoDistance[2]},{Ultra.EchoDistance[3]},{Ultra.EchoDistance[4]},{Ultra.EchoDistance[5]}
+	//Ultra.spinOnce(BACK);
+	
+	// First state = get off the starting block by moving to (52, 65)
+		// X = 52 pretty much line the robot up with the plate
+	__asm__("nop\n\t");
+	//switch (StateMachine) 
+	//{
+		//case 0:
+			//if (Master.MasterSpinOnce() == 1)
+			//{
+				//Master.MasterRequestStateChange();
+				//StateMachine++;
+			//}
+				//break;
+		//case 1:
+			//if (Master.MasterSpinOnce() == 1)
+				//StateMachine++;
+				//break;
+		//default:
+			//delay(100);
+			//break;
+	//}
+	
+	switch (StateMachine)
+	{
+		case 0:
+			//if (Master.MasterSpinOnce() == 1)
+			//{
+				//StateMachine++;
+			//}
+			StateMachine++;
+			break;
+		//Start at [(52,65)]
+		case 1:
+			Ultra.checkPoint(BACK,52,65);
+			
+			if (Ultra.CheckPointFlag == 1){
+				StateMachine++;
+				Ultra.StateMachine = 0;
+				YTarget = 2826;
+			}
+			break;
+		// Go to [52,180] by moving 90 cm forward
+		case 2:
+			if (TargetFlag == 0){
+				TargetFlag = RobotMove.moveForward(&YTarget);
+			}
+			if (TargetFlag == 1){
+				StateMachine++;
+				TargetFlag = 0;
+				RobotMove.stop();
+				delay(200);
+				digitalWrite(13, LOW);
+			}
+			break;
+		// Check point at [52,150] by (52,65)  //I changed this so you need to reevaluate the points from now on
+		case 3:
+			//Ultra.checkPoint(FRONT, 52,65);
+			// Compensating for the irregular back of the fridge
+			Ultra.checkPoint(FRONT,52,50);
+			if (Ultra.CheckPointFlag == 1){
+				Ultra.StateMachine = 0;
+				StateMachine++;
+				YTarget = 314;
+			}
+			break;
+		// Move to [52,190] by moving forward by 10 cm 
+		case 4:
+			if (TargetFlag == 0){
+				TargetFlag = RobotMove.moveForward(&YTarget);
+			}
+			if (TargetFlag == 1){
+				TargetFlag = 0;
+				StateMachine++;
+				RobotMove.stop();
+				delay(200);
+				digitalWrite(13, LOW);
+				YTarget = 2512;
+				
+				Master.MasterRequestStateChange();
+			}
+			break;
+		case 5:
+			//if (Master.MasterSpinOnce() == 1)
+			//{
+				//StateMachine++;
+				//Master.MasterRequestStateChange();
+			//}
+			delay(5000);
+			StateMachine++;
+			break;
+		// this is to ensure that the robot waits till the lift is done
+		case 6:
+			//if (Master.MasterSpinOnce() == 1)
+			//{
+				//StateMachine++;
+			//}
+			StateMachine++;
+			break;
+		// Move to [52,100] by moving backward 80 cm
+		case 7:
+			if (TargetFlag == 0){
+				TargetFlag = RobotMove.moveBackward(&YTarget);
+			}
+			if (TargetFlag == 1){
+				TargetFlag = 0;
+				StateMachine++;
+				RobotMove.stop();
+				delay(200);
+				digitalWrite(13, LOW);
+				WTarget = 1181;
+			}
+			break;
+		case 8:
+			//if (Master.MasterSpinOnce() == 1)
+			//{
+				//StateMachine++;
+				//Master.MasterRequestStateChange();
+			//}
+			StateMachine++;
+			break;
+		// Rotate 90* CCW
+		case 9:
+			if (TargetFlag == 0){
+				TargetFlag = RobotMove.moveCCW(&WTarget);
+			}
+			if (TargetFlag == 1){
+				TargetFlag = 0;
+				StateMachine++;
+				RobotMove.stop();
+				delay(200);
+				digitalWrite(13, LOW);
+				YTarget = 4019;
+			}
+			break;
+		//Move to [180,100] by moving forward by 128 cm 
+		case 10:
+			if (TargetFlag == 0){
+				TargetFlag = RobotMove.moveForward(&YTarget);
+			}
+			if (TargetFlag == 1){
+				TargetFlag = 0;
+				StateMachine++;
+				RobotMove.stop();
+				delay(200);
+				digitalWrite(13, LOW);
+				WTarget = 1181;
+			}
+			break;
+		// Rotate 90* CCW
+		case 11:
+			if (TargetFlag == 0){
+				TargetFlag = RobotMove.moveCCW(&WTarget);
+			}
+			if (TargetFlag == 1){
+				TargetFlag = 0;
+				StateMachine++;
+				RobotMove.stop();
+				delay(200);
+				digitalWrite(13, LOW);
+				YTarget = 785;
+			}
+			break;
+		////Move to [180,75] by moving forward by 25 cm
+		//case 12:
+			//if (TargetFlag == 0){
+				//TargetFlag = RobotMove.moveForward(&YTarget);
+			//}
+			//if (TargetFlag == 1){
+				//TargetFlag = 0;
+				//StateMachine++;
+				//RobotMove.stop();
+				//delay(200);
+				//digitalWrite(13, LOW);
+			//}
+			//break;
+		// Check point at [180,75] by (65,70)
+		case 12:
+			Ultra.checkPoint(FRONT,65,75);
+			if (Ultra.CheckPointFlag == 1){
+				Ultra.StateMachine = 0;
+				StateMachine++;
+				YTarget = 314;
+			}
+			break;
+		//Move to [180,65] by moving forward by 10 cm
+		case 13:
+			if (TargetFlag == 0){
+				TargetFlag = RobotMove.moveForward(&YTarget);
+			}
+			if (TargetFlag == 1){
+				TargetFlag = 0;
+				StateMachine++;
+				RobotMove.stop();
+				delay(200);
+				digitalWrite(13, LOW);
+			}
+		case 14:
+			//if (Master.MasterSpinOnce() == 1)
+			//{
+				//StateMachine++;
+				//Master.MasterRequestStateChange();
+			//}
+			StateMachine++;
+			break;
+		default:
+			RobotMove.stop();
+			delay(40);
+			break;
+	}
+	
 }
 
 /*********************************************************
