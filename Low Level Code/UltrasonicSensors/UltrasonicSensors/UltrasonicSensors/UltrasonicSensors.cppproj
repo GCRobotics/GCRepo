@@ -206,6 +206,12 @@
     </VisualMicroSettings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Lift.cpp">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Lift.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Motors.cpp">
       <SubType>compile</SubType>
     </Compile>

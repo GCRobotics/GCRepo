@@ -234,7 +234,6 @@ void Adafruit_StepperMotor::step(uint16_t steps, uint8_t dir,  uint8_t style) {
     //Serial.println("step!"); Serial.println(uspers);
     ret = onestep(dir, style);
     delay(uspers/1000); // in ms
-	goto PeaceOut;
     steppingcounter += (uspers % 1000);
     if (steppingcounter >= 1000) {
       delay(1);

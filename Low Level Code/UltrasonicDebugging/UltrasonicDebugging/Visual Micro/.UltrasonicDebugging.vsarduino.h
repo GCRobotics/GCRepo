@@ -21,14 +21,13 @@ extern "C" void __cxa_pure_virtual() {;}
 
 //
 //
-void ultraInterrupt();
+void ultrasonicInitialize();
+void ultrasonicSpinOnce();
+void ultrasonicInterrupt();
+void ultrasonicTrigger();
+void ultrasonicAddressSelect(int Address);
+void ultrasonicPinSelect (int Address);
 
 #include "C:\Program Files (x86)\Arduino\hardware\arduino\variants\standard\pins_arduino.h" 
 #include "C:\Program Files (x86)\Arduino\hardware\arduino\cores\arduino\arduino.h"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\UltrasonicSensors\UltrasonicSensors\UltrasonicSensors\UltrasonicSensors.ino"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\UltrasonicSensors\UltrasonicSensors\UltrasonicSensors\Lift.cpp"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\UltrasonicSensors\UltrasonicSensors\UltrasonicSensors\Lift.h"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\UltrasonicSensors\UltrasonicSensors\UltrasonicSensors\Motors.cpp"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\UltrasonicSensors\UltrasonicSensors\UltrasonicSensors\Motors.h"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\UltrasonicSensors\UltrasonicSensors\UltrasonicSensors\Ultrasonic.cpp"
-#include "C:\Users\Quang\Documents\GitHub\GCRepo\Low Level Code\UltrasonicSensors\UltrasonicSensors\UltrasonicSensors\Ultrasonic.h"
+#include "C:\Users\Quang\Desktop\UltrasonicDebugging\UltrasonicDebugging\UltrasonicDebugging.ino"
